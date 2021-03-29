@@ -1,45 +1,7 @@
-#include <windows.h>
-#include <stdio.h>
-#include <stdint.h>
-
-#include "fl_core.h"
-#include "fl_string.h"
-#include "fl_w32_utils.h"
-
-// #include "external/lookup2.c"
-#include "external/crc64.c"
-#include "fl_core.c"
-#include "fl_string.c"
-#include "fl_w32_utils.c"
-
-// TODO(rhett): I'm not so sure we need to use String8 so much
-
-
 //----------------------------------------------------------------
-// Structures
+// Function definitions
 //----------------------------------------------------------------
-typedef struct Asset2_Data Asset2_Data;
-struct Asset2_Data
-    {
-    uint64 data_offset;
-    uint64 raw_data_length;
-    uint32 zip_flag;
-    };
-
-typedef struct Pack2 Pack2;
-struct Pack2
-    {
-    String8      pack_path;
-    uint32       asset_count;
-    uint64      *name_hashes;
-    uint64       pack_length;
-    Asset2_Data *asset_data;
-    };
-
-
-//----------------------------------------------------------------
-// Helper functions
-//----------------------------------------------------------------
+//// Helper Functions
 // TODO(rhett): hash the uppercase string
 fl_external uint64
 fl_crc64(String8 to_hash)
@@ -47,10 +9,7 @@ fl_crc64(String8 to_hash)
     return ~crc64(~0, to_hash.content, to_hash.size-1);
     }
 
-
-//----------------------------------------------------------------
-// Main functions
-//----------------------------------------------------------------
+//// Main functionss
 fl_external void
 fl_load_pack2(Pack2 *ptr_pack, String8 pack_path)
     {
@@ -130,30 +89,4 @@ fl_get_asset_by_name(String8 name, Pack2 pack)
     {
     uint64 hash = fl_crc64(name);
     return fl_get_asset_by_hash(hash, pack);
-    }
-
-
-
-//----------------------------------------------------------------
-// Entry point
-//----------------------------------------------------------------
-int
-main(void)
-    {
-    printf("hello, world\n");
-    Pack2 temp_pack = {0};
-    fl_load_pack2(&temp_pack, cstring_to_string8("C:\\A\\Games\\PlanetSide 2 Test\\Resources\\Assets\\data_x64_0.pack2"));
-
-    // uint64 test_hash = fl_crc64(cstring_to_string8("{NAMELIST}"));
-    // printf("%llx\n", test_hash);
-
-    // TODO(rhett): is String8 too much of a hassle here?
-    uint64 test_hash = fl_crc64(cstring_to_string8("CLIENTITEMDEFINITIONS.TXT"));
-    printf("%llu\n", test_hash);
-
-    Asset2_Data test_asset = fl_get_asset_by_hash(test_hash, temp_pack);
-
-    Asset2_Data test_asset2 = fl_get_asset_by_name(cstring_to_string8("VEHICLES.TXT"), temp_pack);
-
-    return 0;
     }
