@@ -4,21 +4,19 @@
 //// Helper Functions
 // TODO(rhett): hash the uppercase string
 fl_external uint64
-fl_crc64(String8 to_hash)
+fl_crc64(char *to_hash)
     {
-    return ~crc64(~0, to_hash.content, to_hash.size-1);
+    return ~crc64(~0, to_hash, cstring_length(to_hash));
     }
 
-//// Main functionss
+//// Main functions
 fl_external void
-fl_load_pack2(Pack2 *ptr_pack, String8 pack_path)
+fl_load_pack2(Pack2 *ptr_pack, char *pack_path)
     {
-    printf("Loading \"%s\"...\n", pack_path.content);
-    ptr_pack->pack_path.size = pack_path.size;
-    ptr_pack->pack_path.content = fl_alloc(pack_path.size);
-    fl_memcpy(pack_path.content, ptr_pack->pack_path.content, ptr_pack->pack_path.size);
+    printf("Loading \"%s\"...\n", pack_path);
+    ptr_pack->pack_path = cstring_to_string8(pack_path);
 
-    uint8 *buffer = w32_read_entire_file(ptr_pack->pack_path);
+    uint8 *buffer = w32_read_entire_file(ptr_pack->pack_path.content);
     uint8 *buffer_begin = buffer;
 
     // TODO(rhett): Verify magic
@@ -26,7 +24,7 @@ fl_load_pack2(Pack2 *ptr_pack, String8 pack_path)
     fl_memcpy(buffer, magic, 3);
     buffer += 3;
 
-    uint8 version = *cast(uint8 *)buffer;
+    uint8 version = *buffer;
     buffer += 1;
 
     ptr_pack->asset_count = get_uint32le(buffer);
@@ -42,8 +40,8 @@ fl_load_pack2(Pack2 *ptr_pack, String8 pack_path)
     buffer = buffer_begin + map_offset;
 
     // NOTE(rhett): Load asset info
-    ptr_pack->name_hashes = cast(uint64 *)fl_alloc(ptr_pack->asset_count * 8);
-    ptr_pack->asset_data = cast(Asset2_Data *)fl_alloc(ptr_pack->asset_count * sizeof(Asset2_Data));
+    ptr_pack->name_hashes = fl_cast(uint64 *)fl_alloc(ptr_pack->asset_count * 8);
+    ptr_pack->asset_data = fl_cast(Asset2_Data *)fl_alloc(ptr_pack->asset_count * sizeof(Asset2_Data));
 
     Asset2_Data *ptr_asset_data = 0;
     for (uint32 i = 0; i < ptr_pack->asset_count; ++i)
@@ -85,7 +83,7 @@ fl_get_asset_by_hash(uint64 hash, Pack2 pack)
     }
 
 fl_external Asset2_Data
-fl_get_asset_by_name(String8 name, Pack2 pack)
+fl_get_asset_by_name(char *name, Pack2 pack)
     {
     uint64 hash = fl_crc64(name);
     return fl_get_asset_by_hash(hash, pack);

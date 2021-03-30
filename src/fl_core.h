@@ -10,10 +10,10 @@
 #define fl_local_persist static
 #define fl_external      extern
 
-#define cast(type) (type)
+#define fl_cast(type) (type)
 
-#define FALSE 0
-#define TRUE  1
+#define FL_FALSE 0
+#define FL_TRUE  1
 
 #define fl_alloc(sz)          w32_memory_alloc(sz)
 #define fl_free(p)            w32_memory_free(p)

@@ -8,8 +8,8 @@
 typedef struct String8 String8;
 struct String8
     {
-    uint32  size;
-    uint8  *content;
+    uint32  size;    // NOTE(rhett): Includes null-terminator.
+    char   *content; // NOTE(rhett): Null-terminated string.
     };
 
 

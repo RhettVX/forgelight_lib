@@ -19,16 +19,16 @@ w32_memory_free(uint8 *pointer)
 //----------------------------------------------------------------
 // TODO(rhett): This only reads a 4gb file, but the pack2 format can handle larger.
 fl_internal uint8 *
-w32_read_entire_file(String8 file_path)
+w32_read_entire_file(char *file_path)
     {
     uint8 *result = 0;
-    HANDLE file_handle = CreateFile(cast(char const *)file_path.content,
-                                   GENERIC_READ,
-                                   FILE_SHARE_READ,
-                                   0,
-                                   OPEN_EXISTING,
-                                   FILE_ATTRIBUTE_NORMAL,
-                                   0);
+    HANDLE file_handle = CreateFile(file_path,
+                                    GENERIC_READ,
+                                    FILE_SHARE_READ,
+                                    0,
+                                    OPEN_EXISTING,
+                                    FILE_ATTRIBUTE_NORMAL,
+                                    0);
 
     if (file_handle == INVALID_HANDLE_VALUE)
         {

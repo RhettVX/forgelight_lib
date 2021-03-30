@@ -14,7 +14,7 @@ w32_memory_free(uint8 *pointer);
 
 //// File functions
 fl_internal uint8 *
-w32_read_entire_file(String8 file_path);
+w32_read_entire_file(char *file_path);
 
 
 #endif // FL_W32_UTILS_H
