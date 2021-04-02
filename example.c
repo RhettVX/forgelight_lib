@@ -25,6 +25,9 @@ int
 main(void)
     {
     printf("hello, world\n");
+
+
+    #if 1
     Pack2 temp_pack = {0};
     fl_load_pack2(&temp_pack, "C:\\A\\Games\\PlanetSide 2 Test\\Resources\\Assets\\data_x64_0.pack2");
 
@@ -32,12 +35,19 @@ main(void)
     // printf("%llx\n", test_hash);
 
     // TODO(rhett): is String8 too much of a hassle here?
-    uint64 test_hash = fl_crc64("CLIENTITEMDEFINITIONS.TXT");
+    ui64 test_hash = fl_crc64("CLIENTITEMDEFINITIONS.TXT");
     printf("%llu\n", test_hash);
 
-    Asset2_Data test_asset = fl_get_asset_by_hash(test_hash, temp_pack);
+    // Asset2_Data test_asset = fl_get_asset_by_hash(test_hash, temp_pack);
 
-    Asset2_Data test_asset2 = fl_get_asset_by_name("VEHICLES.TXT", temp_pack);
+    i32 test_asset2 = fl_get_asset_index_by_name("VEHICLES.TXT", temp_pack);
+    if (test_asset2 == FL_ASSET_NOT_FOUND)
+        {
+        return 1;
+        }
+
+    fl_unpack_asset_from_pack2(test_asset2, temp_pack);
+    #endif
 
     return 0;
     }

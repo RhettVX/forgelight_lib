@@ -8,15 +8,15 @@
 typedef struct String8 String8;
 struct String8
     {
-    uint32  size;    // NOTE(rhett): Includes null-terminator.
-    char   *content; // NOTE(rhett): Null-terminated string.
+    ui32  size;    // NOTE(rhett): Includes null-terminator.
+    char *content; // NOTE(rhett): Null-terminated string.
     };
 
 
 //----------------------------------------------------------------
 // Function declarations
 //----------------------------------------------------------------
-fl_internal uint32
+fl_internal ui32
 cstring_length(char *cstring);
 
 fl_internal String8

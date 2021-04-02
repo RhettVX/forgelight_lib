@@ -1,10 +1,10 @@
 //----------------------------------------------------------------
 // Function definitions
 //----------------------------------------------------------------
-fl_internal uint32
+fl_internal ui32
 cstring_length(char *cstring)
     {
-    uint32 count = 0;
+    ui32 count = 0;
     while (*(cstring++))
         {
             ++count;

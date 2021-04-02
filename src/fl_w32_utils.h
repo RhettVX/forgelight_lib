@@ -6,14 +6,14 @@
 // Function declarations
 //----------------------------------------------------------------
 //// Memory functions
-fl_internal uint8 *
-w32_memory_alloc(uint32 size);
+fl_internal ui8 *
+w32_memory_alloc(ui32 size);
 
-fl_internal bool32
-w32_memory_free(uint8 *pointer);
+fl_internal b32
+w32_memory_free(ui8 *pointer);
 
 //// File functions
-fl_internal uint8 *
+fl_internal ui8 *
 w32_read_entire_file(char *file_path);
 
 

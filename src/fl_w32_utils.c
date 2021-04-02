@@ -1,14 +1,14 @@
 //----------------------------------------------------------------
 // Memory functions
 //----------------------------------------------------------------
-fl_internal uint8 *
-w32_memory_alloc(uint32 size)
+fl_internal ui8 *
+w32_memory_alloc(ui32 size)
     {
     return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
     }
 
-fl_internal bool32
-w32_memory_free(uint8 *pointer)
+fl_internal b32
+w32_memory_free(ui8 *pointer)
     {
     return HeapFree(GetProcessHeap(), 0, pointer);
     }
@@ -18,10 +18,10 @@ w32_memory_free(uint8 *pointer)
 // File functions
 //----------------------------------------------------------------
 // TODO(rhett): This only reads a 4gb file, but the pack2 format can handle larger.
-fl_internal uint8 *
+fl_internal ui8 *
 w32_read_entire_file(char *file_path)
     {
-    uint8 *result = 0;
+    ui8 *result = 0;
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_READ,
                                     FILE_SHARE_READ,
@@ -36,13 +36,13 @@ w32_read_entire_file(char *file_path)
         }
 
     // get file size
-    uint32 file_size = GetFileSize(file_handle, 0);
+    ui32 file_size = GetFileSize(file_handle, 0);
 
     // Setup buffer
     result = fl_alloc(file_size);
 
     // NOTE(rhett): Read entire file into result
-    uint32 bytes_read = 0;
+    ui32 bytes_read = 0;
     ReadFile(file_handle, result, file_size, &bytes_read, 0);
 
     CloseHandle(file_handle);

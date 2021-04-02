@@ -23,36 +23,36 @@
 //----------------------------------------------------------------
 // Type aliases
 //----------------------------------------------------------------
-typedef int8_t   int8;
-typedef int16_t  int16;
-typedef int32_t  int32;
-typedef int64_t  int64;
+typedef int8_t   i8;
+typedef int16_t  i16;
+typedef int32_t  i32;
+typedef int64_t  i64;
 
-typedef uint8_t  uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+typedef uint8_t  ui8;  // NOTE(rhett): Using ui8 instead of u8 to avoid name conflicts with the utf string prefix
+typedef uint16_t ui16;
+typedef uint32_t ui32;
+typedef uint64_t ui64;
 
-typedef int8     bool8;
-typedef int16    bool16;
-typedef int32    bool32;
-typedef int64    bool64;
+typedef i8       b8;
+typedef i16      b16;
+typedef i32      b32;
+typedef i64      b64;
 
-typedef float    float32;
-typedef double   float64;
+typedef float    f32;
+typedef double   f64;
 
 
 //----------------------------------------------------------------
 // Function declarations
 //----------------------------------------------------------------
 fl_internal void
-memory_copy(uint8 *source, uint8 *destination, uint32 size);
+memory_copy(ui8 *source, ui8 *destination, ui32 size);
 
-fl_internal uint32
-get_uint32le(uint8 *data);
+fl_internal ui32
+get_ui32le(ui8 *data); // TODO(rhett): Is this name too hard to read?
 
-fl_internal uint64
-get_uint64le(uint8 *data);
+fl_internal ui64
+get_ui64le(ui8 *data);
 
 
 #endif // FL_CORE_H
