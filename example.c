@@ -9,7 +9,7 @@
 #include "src/fl_pack2.h"
 
 // NOTE(rhett): Implementations
-#include "src/external/crc64.c"
+// #include "src/external/crc64.c"
 #include "src/fl_core.c"
 #include "src/fl_string.c"
 #include "src/fl_w32_utils.c"

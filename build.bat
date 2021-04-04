@@ -3,5 +3,9 @@
 call "D:\WindowsPrograms\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
 mkdir build
 pushd build
-cl -FC -Zi ..\example.c
+rem TODO(rhett): Don't know if I need to do this. Likely temporary. Maybe even a bad idea.
+rem TODO(rhett): Evaluate if I should stick external code in seperate translation units
+cl /c -FC -Zi ..\src\external\lookup2.c
+cl /c -FC -Zi ..\src\external\crc64.c
+cl -FC -Zi ..\example.c lookup2.obj crc64.obj
 popd

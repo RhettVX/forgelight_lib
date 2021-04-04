@@ -33,12 +33,17 @@ struct Pack2
 //----------------------------------------------------------------
 // Function declarations
 //----------------------------------------------------------------
+//// External function prototypes
+fl_external ui64
+crc64(ui64 crc, ui8 const *s, ui64 l);
+
+
 //// Helper functions
 fl_external ui64
 fl_crc64(char *to_hash);
 
 fl_external ui32
-fl_oaat(char *to_hash);
+fl_oaat(char *to_hash); // TODO(rhett): 
 
 //// Main functions
 fl_external void
