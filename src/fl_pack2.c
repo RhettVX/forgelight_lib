@@ -41,23 +41,24 @@ fl_load_pack2(Pack2 *ptr_pack, char *pack_path)
 
     // NOTE(rhett): Load asset info
     // ptr_pack->name_hashes = fl_cast(ui64 *)fl_alloc(ptr_pack->asset_count * 8);
-    ptr_pack->asset_data = fl_cast(Asset2_Data *)fl_alloc(ptr_pack->asset_count * sizeof(Asset2_Data));
+    // TODO(rhett): We should probably move allocation out of here
+    ptr_pack->asset2s = fl_cast(Asset2 *)fl_alloc(ptr_pack->asset_count * sizeof(Asset2));
 
-    Asset2_Data *ptr_asset_data = 0;
+    Asset2 *ptr_asset2s = 0;
     for (ui32 i = 0; i < ptr_pack->asset_count; ++i)
         {
-        ptr_asset_data = &ptr_pack->asset_data[i];
+        ptr_asset2s = &ptr_pack->asset2s[i];
 
-        ptr_asset_data->name_hash = get_ui64le(buffer);
+        ptr_asset2s->name_hash = get_ui64le(buffer);
         buffer += 8;
 
-        ptr_asset_data->data_offset = get_ui64le(buffer);
+        ptr_asset2s->data_offset = get_ui64le(buffer);
         buffer += 8;
 
-        ptr_asset_data->raw_data_length = get_ui64le(buffer);
+        ptr_asset2s->raw_data_length = get_ui64le(buffer);
         buffer += 8;
 
-        ptr_asset_data->zip_flag = get_ui32le(buffer);
+        ptr_asset2s->zip_flag = get_ui32le(buffer);
         buffer += 4;
 
         // NOTE(rhett): Skip checksum
@@ -67,28 +68,29 @@ fl_load_pack2(Pack2 *ptr_pack, char *pack_path)
     }
 
 // TODO(rhett): We may be able to optimize this as long as the hashes are in order of least to greatest
-fl_external Asset2_Data *
+fl_external Asset2 *
 fl_get_asset_index_by_hash(ui64 hash, Pack2 pack)
     {
     for (ui32 i = 0; i < pack.asset_count; ++i)
         {
-        if (pack.asset_data[i].name_hash == hash)
+        if (pack.asset2s[i].name_hash == hash)
             {
-            return &pack.asset_data[i];
+            return &pack.asset2s[i];
             }
         }
     return 0;
     }
 
-fl_external Asset2_Data *
+fl_external Asset2 *
 fl_get_asset_index_by_name(char *name, Pack2 pack)
     {
+    // TODO(rhett): Check if name hash is already cached
     ui64 hash = fl_crc64(name);
     return fl_get_asset_index_by_hash(hash, pack);
     }
 
 fl_external b32
-fl_unpack_asset2(Asset2_Data *asset)
+fl_unpack_asset2(Asset2 *asset)
     {
     switch(asset->zip_flag)
         {

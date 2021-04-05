@@ -40,7 +40,7 @@ main(void)
 
     // Asset2_Data test_asset = fl_get_asset_by_hash(test_hash, temp_pack);
 
-    Asset2_Data *test_asset2 = fl_get_asset_index_by_name("VEHICLES.TXT", temp_pack);
+    Asset2 *test_asset2 = fl_get_asset_index_by_name("VEHICLES.TXT", temp_pack);
     if (test_asset2 == 0)
         {
         return -1;
