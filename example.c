@@ -9,7 +9,7 @@
 #include "src/fl_pack2.h"
 
 // NOTE(rhett): Implementations
-// #include "src/external/crc64.c"
+#include "src/external/crc64.c"
 #include "src/fl_core.c"
 #include "src/fl_string.c"
 #include "src/fl_w32_utils.c"
@@ -40,13 +40,13 @@ main(void)
 
     // Asset2_Data test_asset = fl_get_asset_by_hash(test_hash, temp_pack);
 
-    i32 test_asset2 = fl_get_asset_index_by_name("VEHICLES.TXT", temp_pack);
-    if (test_asset2 == FL_ASSET_NOT_FOUND)
+    Asset2_Data *test_asset2 = fl_get_asset_index_by_name("VEHICLES.TXT", temp_pack);
+    if (test_asset2 == 0)
         {
-        return 1;
+        return -1;
         }
 
-    fl_unpack_asset_from_pack2(test_asset2, temp_pack);
+    fl_unpack_asset2(test_asset2);
     #endif
 
     return 0;
