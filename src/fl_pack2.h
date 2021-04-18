@@ -40,17 +40,18 @@ fl_external ui32
 fl_oaat(char *to_hash); // TODO(rhett): 
 
 //// Main functions
-fl_external void
-fl_load_pack2(Pack2 *ptr_pack, char *pack_path);
+fl_external Pack2
+fl_load_pack2(char *pack_path);
 
 fl_external Asset2 *
-fl_get_asset_index_by_hash(ui64 hash, Pack2 pack);
+fl_get_asset2_by_hash(ui64 hash, Pack2 pack);
 
 fl_external Asset2 *
-fl_get_asset_index_by_name(char *name, Pack2 pack);
+fl_get_asset2_by_name(char *name, Pack2 pack);
 
-fl_external b32
-fl_unpack_asset2(Asset2 *asset);
-
+// Returns a pointer to the uncompressed asset data. data must be a pointer to the pack2's data.
+// TODO(rhett): This allocates result.
+fl_external ui8 *
+fl_unpack_asset2(Asset2 *asset, ui8 *data);
 
 #endif // FL_PACK2_H

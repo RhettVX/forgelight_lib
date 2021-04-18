@@ -48,11 +48,19 @@ typedef double   f64;
 fl_internal void
 memory_copy(ui8 *source, ui8 *destination, ui32 size);
 
+//// Little endian
 fl_internal ui32
 get_ui32le(ui8 *data); // TODO(rhett): Is this name too hard to read?
 
 fl_internal ui64
 get_ui64le(ui8 *data);
+
+//// Big endian
+fl_internal ui16
+get_ui16be(ui8 *data);
+
+fl_internal ui32
+get_ui32be(ui8 *data);
 
 
 #endif // FL_CORE_H
