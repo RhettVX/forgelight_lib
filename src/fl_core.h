@@ -11,6 +11,10 @@
 #define fl_external      extern
 
 #define fl_cast(type) (type)
+#define Kilobytes(n)  (n << 10)
+#define Megabytes(n)  (n << 20)
+#define Gigabytes(n)  ((fl_cast(ui64)n) << 30)
+#define Terabytes(n)  ((fl_cast(ui64)n) << 40)
 
 #define FL_FALSE 0
 #define FL_TRUE  1

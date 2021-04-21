@@ -11,38 +11,46 @@ fl_crc64(char *to_hash)
 
 //// Main functions
 fl_external Pack2
-fl_load_pack2(char *pack_path)
+fl_load_pack2(char *pack_path, ui8 *pack2_buffer, ui32 pack2_max_size)
     {
     Pack2 result = {0};
 
     printf("Loading \"%s\"...\n", pack_path);
     result.pack_path = cstring_to_string8(pack_path);
 
-    ui8 *buffer = w32_read_entire_file(result.pack_path.content);
-    ui8 *buffer_begin = buffer;
+    if (!pack2_buffer)
+        {
+        return result;
+        }
+    
+    if (!w32_read_entire_file(result.pack_path.content, pack2_buffer, pack2_max_size))
+        {
+        return result;
+        }
+
+    ui8 *buffer_begin = pack2_buffer;
 
     // TODO(rhett): Verify magic
     ui8 magic[3] = {0};
-    fl_memcpy(buffer, magic, 3);
-    buffer += 3;
+    fl_memcpy(pack2_buffer, magic, 3);
+    pack2_buffer += 3;
 
-    ui8 version = *buffer;
-    buffer += 1;
+    ui8 version = *pack2_buffer;
+    pack2_buffer += 1;
 
-    result.asset_count = get_ui32le(buffer);
-    buffer += 4;
+    result.asset_count = get_ui32le(pack2_buffer);
+    pack2_buffer += 4;
 
-    result.pack_length = get_ui64le(buffer);
-    buffer += 8;
+    result.pack_length = get_ui64le(pack2_buffer);
+    pack2_buffer += 8;
 
-    ui64 map_offset = get_ui64le(buffer);
-    buffer += 8;
+    ui64 map_offset = get_ui64le(pack2_buffer);
+    pack2_buffer += 8;
 
     // NOTE(rhett): Skip unk0 and signature. Move right to map
-    buffer = buffer_begin + map_offset;
+    pack2_buffer = buffer_begin + map_offset;
 
     // NOTE(rhett): Load asset info
-    // result.name_hashes = fl_cast(ui64 *)fl_alloc(result.asset_count * 8);
     // TODO(rhett): We should probably move allocation out of here
     result.asset2s = fl_cast(Asset2 *)fl_alloc(result.asset_count * sizeof(Asset2));
 
@@ -51,20 +59,20 @@ fl_load_pack2(char *pack_path)
         {
         ptr_asset2s = &result.asset2s[i];
 
-        ptr_asset2s->name_hash = get_ui64le(buffer);
-        buffer += 8;
+        ptr_asset2s->name_hash = get_ui64le(pack2_buffer);
+        pack2_buffer += 8;
 
-        ptr_asset2s->data_offset = get_ui64le(buffer);
-        buffer += 8;
+        ptr_asset2s->data_offset = get_ui64le(pack2_buffer);
+        pack2_buffer += 8;
 
-        ptr_asset2s->raw_data_length = get_ui64le(buffer);
-        buffer += 8;
+        ptr_asset2s->raw_data_length = get_ui64le(pack2_buffer);
+        pack2_buffer += 8;
 
-        ptr_asset2s->zip_flag = get_ui32le(buffer);
-        buffer += 4;
+        ptr_asset2s->zip_flag = get_ui32le(pack2_buffer);
+        pack2_buffer += 4;
 
         // NOTE(rhett): Skip checksum
-        buffer += 4;
+        pack2_buffer += 4;
         // printf("%#018llx\n", result.name_hashes[i]);
         }
     return result;
@@ -93,7 +101,7 @@ fl_get_asset2_by_name(char *name, Pack2 pack)
     }
 
 fl_external ui8 *
-fl_unpack_asset2(Asset2 *asset, ui8 *source)
+fl_read_asset2(Asset2 *asset, ui8 *source)
     {
     ui8 *result = 0;
     switch(asset->zip_flag)

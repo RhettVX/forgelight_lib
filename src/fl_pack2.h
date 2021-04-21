@@ -5,6 +5,8 @@
 //----------------------------------------------------------------
 // Defines
 //----------------------------------------------------------------
+#define FL_PACK2_BUFFER_SIZE  Megabytes(500)
+#define FL_ASSET2_BUFFER_SIZE Megabytes(100)
 
 
 //----------------------------------------------------------------
@@ -41,7 +43,7 @@ fl_oaat(char *to_hash); // TODO(rhett):
 
 //// Main functions
 fl_external Pack2
-fl_load_pack2(char *pack_path);
+fl_load_pack2(char *pack_path, ui8 *pack2_buffer, ui32 pack2_max_size);
 
 fl_external Asset2 *
 fl_get_asset2_by_hash(ui64 hash, Pack2 pack);
@@ -52,6 +54,7 @@ fl_get_asset2_by_name(char *name, Pack2 pack);
 // Returns a pointer to the uncompressed asset data. data must be a pointer to the pack2's data.
 // TODO(rhett): This allocates result.
 fl_external ui8 *
-fl_unpack_asset2(Asset2 *asset, ui8 *data);
+fl_read_asset2(Asset2 *asset, ui8 *data);
+
 
 #endif // FL_PACK2_H

@@ -18,10 +18,10 @@ w32_memory_free(ui8 *pointer)
 // File functions
 //----------------------------------------------------------------
 // TODO(rhett): This only reads a 4gb file, but the pack2 format can handle larger.
-fl_internal ui8 *
-w32_read_entire_file(char *file_path)
+// TODO(rhett): Maybe use a result variable.
+fl_internal b32
+w32_read_entire_file(char *file_path, ui8 *buffer, ui32 max_size)
     {
-    ui8 *result = 0;
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_READ,
                                     FILE_SHARE_READ,
@@ -32,19 +32,25 @@ w32_read_entire_file(char *file_path)
 
     if (file_handle == INVALID_HANDLE_VALUE)
         {
-        return result;
+        return FL_FALSE;
         }
 
     // get file size
     ui32 file_size = GetFileSize(file_handle, 0);
+    if (file_size > max_size)
+        {
+        return FL_FALSE;
+        }
 
-    // Setup buffer
-    result = fl_alloc(file_size);
+    if (!buffer)
+        {
+        return FL_FALSE;
+        }
 
-    // NOTE(rhett): Read entire file into result
+    // NOTE(rhett): Read entire file into buffer
     ui32 bytes_read = 0;
-    ReadFile(file_handle, result, file_size, &bytes_read, 0);
+    ReadFile(file_handle, buffer, file_size, &bytes_read, 0);
 
     CloseHandle(file_handle);
-    return result;
+    return FL_TRUE;
     }

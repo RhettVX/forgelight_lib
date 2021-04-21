@@ -13,8 +13,8 @@ fl_internal b32
 w32_memory_free(ui8 *pointer);
 
 //// File functions
-fl_internal ui8 *
-w32_read_entire_file(char *file_path);
+fl_internal b32
+w32_read_entire_file(char *file_path, ui8 *buffer, ui32 max_size);
 
 
 #endif // FL_W32_UTILS_H

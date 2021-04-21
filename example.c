@@ -31,7 +31,13 @@ main(void)
     printf("hello, world\n");
 
     #if 1
-    Pack2 temp_pack = fl_load_pack2("C:\\A\\Games\\PlanetSide 2 Test\\Resources\\Assets\\data_x64_0.pack2");
+    ui8 *pack2_buffer = fl_alloc(FL_PACK2_BUFFER_SIZE);
+    Pack2 temp_pack = fl_load_pack2("C:\\A\\Games\\PlanetSide 2 Test\\Resources\\Assets\\data_x64_0.pack2",
+                                    pack2_buffer,
+                                    FL_PACK2_BUFFER_SIZE);
+
+    ZeroMemory(pack2_buffer, FL_PACK2_BUFFER_SIZE);
+
 
     // uint64 test_hash = fl_crc64(cstring_to_string8("{NAMELIST}"));
     // printf("%llx\n", test_hash);
@@ -48,10 +54,14 @@ main(void)
         return -1;
         }
 
-    ui8 *pack_data = w32_read_entire_file(temp_pack.pack_path.content);
-    pack_data += test_asset2->data_offset;
+    if (!w32_read_entire_file(temp_pack.pack_path.content, pack2_buffer, FL_PACK2_BUFFER_SIZE))
+        {
+        return -1;
+        }
 
-    ui8 *asset_buffer = fl_unpack_asset2(test_asset2, pack_data);
+    pack2_buffer += test_asset2->data_offset;
+
+    ui8 *asset_buffer = fl_read_asset2(test_asset2, pack2_buffer);
 
     // ui8 *asset_buffer = fl_alloc(test_asset2.r)
     #endif
