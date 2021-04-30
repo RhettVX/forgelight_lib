@@ -2,11 +2,30 @@
 // Function definitions
 //----------------------------------------------------------------
 //// Helper Functions
-// TODO(rhett): hash the uppercase string
+// TODO(rhett): Clean this up
 fl_external ui64
-fl_crc64(char *to_hash)
+fl_crc64_uppercase(char *to_hash)
     {
-    return ~crc64(~0, to_hash, cstring_length(to_hash));
+    ui32 string_length = cstring_length(to_hash);
+
+    char upper_string[255] = {0};
+    if (string_length > 255)
+        {
+        printf("Whoops, guess filenames can be bigger than 256 characters...");
+        return 0;
+        }
+
+    for (ui32 i = 0; i < string_length; ++i)
+        {
+        char c = *(to_hash + i);
+        if (c >= 'a' && c <= 'z')
+            {
+            c ^= 0b00100000;
+            }
+        upper_string[i] = c;
+        }
+
+    return ~crc64(~0, upper_string, string_length);
     }
 
 //// Main functions
@@ -79,37 +98,39 @@ fl_load_pack2(char *pack_path, ui8 *pack2_buffer, ui32 pack2_max_size)
     }
 
 // TODO(rhett): We may be able to optimize this as long as the hashes are in order of least to greatest
-fl_external Asset2 *
+fl_external Asset2
 fl_get_asset2_by_hash(ui64 hash, Pack2 pack)
     {
     for (ui32 i = 0; i < pack.asset_count; ++i)
         {
         if (pack.asset2s[i].name_hash == hash)
             {
-            return &pack.asset2s[i];
+            return pack.asset2s[i];
             }
         }
-    return 0;
+    Asset2 empty = {0};
+    return empty;
     }
 
-fl_external Asset2 *
+fl_external Asset2
 fl_get_asset2_by_name(char *name, Pack2 pack)
     {
     // TODO(rhett): Check if name hash is already cached
-    ui64 hash = fl_crc64(name);
+    ui64 hash = fl_crc64_uppercase(name);
     return fl_get_asset2_by_hash(hash, pack);
     }
 
-fl_external ui8 *
-fl_read_asset2(Asset2 *asset, ui8 *source)
+fl_external Asset2
+fl_read_asset2(Asset2 asset, ui8 *pack2_buffer, ui8 *asset2_buffer, ui32 max_asset2_size)
     {
-    ui8 *result = 0;
-    switch(asset->zip_flag)
+    switch(asset.zip_flag)
         {
         // NOTE(rhett): Asset is unzipped
         case 0x00:
         case 0x10:
             printf("UNZIPPED\n");
+
+
             // TODO(rhett): 
             break;
 
@@ -119,17 +140,25 @@ fl_read_asset2(Asset2 *asset, ui8 *source)
             printf("ZIPPED\n");
 
             // NOTE(rhett): Skip A1B2C3D4
-            source += 4;
+            pack2_buffer += 4;
 
             // NOTE(rhett): This is big endian
-            ui32 unpacked_length = get_ui32be(source);
-            source += 4;
+            asset.unzipped_data_length = get_ui32be(pack2_buffer);
+            pack2_buffer += 4;
 
-            result = fl_alloc(unpacked_length);
-            mz_uncompress(result, &unpacked_length, source, asset->raw_data_length);
+            if (asset.unzipped_data_length > max_asset2_size)
+                {
+                printf("Unzipped length is bigger than the max asset2 size. NOT GOOD\n");
+                return asset;
+                }
+
+            mz_uncompress(asset2_buffer,
+                          &asset.unzipped_data_length,
+                          pack2_buffer,
+                          asset.raw_data_length);
             break;
         }
 
-    return result;
+    return asset;
     }
 

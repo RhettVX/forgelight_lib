@@ -22,6 +22,9 @@ cstring_length(char *cstring);
 fl_internal String8
 cstring_to_string8(char *cstring);
 
+// fl_internal void
+// cstring_make_upper(char *cstring);
+
 
 #endif // FL_STRING_H
 
@@ -52,6 +55,19 @@ cstring_to_string8(char *cstring)
 
     return result;
     }
+
+// fl_internal void
+// cstring_make_upper(char *cstring)
+//     {
+//     while(*cstring != 0)
+//         {
+//         if (*cstring >= 'a' && *cstring <= 'z')
+//             {
+//             *cstring ^= 0b00100000;
+//             }
+//         ++cstring;
+//         }
+//     }
 
 
 #endif // FL_STRING_IMPLEMENTATION
