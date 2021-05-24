@@ -8,15 +8,15 @@
 typedef struct String8 String8;
 struct String8
     {
-    ui32  length;
-    ui8  *content;
+    u32  length;
+    u8  *content;
     };
 
 
 //----------------------------------------------------------------
 // Function declarations
 //----------------------------------------------------------------
-fl_internal ui32
+fl_internal u32
 cstring_length(char *cstring);
 
 fl_internal String8
@@ -29,16 +29,16 @@ cstring_to_string8(char *cstring);
 #endif // FL_STRING_H
 
 
-#ifdef FL_STRING_IMPLEMENTATION
+#ifdef FL_STRING_IMPL
 
 
 //----------------------------------------------------------------
 // Function definitions
 //----------------------------------------------------------------
-fl_internal ui32
+fl_internal u32
 cstring_length(char *cstring)
     {
-    ui32 count = 0;
+    u32 count = 0;
     while (*(cstring++))
         {
             ++count;
@@ -70,4 +70,4 @@ cstring_to_string8(char *cstring)
 //     }
 
 
-#endif // FL_STRING_IMPLEMENTATION
+#endif // FL_STRING_IMPL
