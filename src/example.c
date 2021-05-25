@@ -5,20 +5,20 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "src/external/miniz.c"
-#include "src/external/crc64.c"
+#include "library/external/miniz.c"
+#include "library/external/crc64.c"
 
 #define FL_BASE_IMPL
-#include "src/fl_base.h"
+#include "library/fl_base.h"
 #define FL_STRING_IMPL
-#include "src/fl_string.h"
+#include "library/fl_string.h"
 #define FL_W32_UTILS_IMPL
-#include "src/fl_w32_utils.h"
+#include "library/fl_w32_utils.h"
 #define MINIZ_NO_ARCHIVE_WRITING_APIS
 #define MINIZ_NO_ARCHIVE_APIS
-#include "src/external/miniz.h"
+#include "library/external/miniz.h"
 #define FL_PACK2_IMPL
-#include "src/fl_pack2.h"
+#include "library/fl_pack2.h"
 
 
 //----------------------------------------------------------------

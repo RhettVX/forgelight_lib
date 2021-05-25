@@ -72,8 +72,8 @@ fl_crc64_uppercase(char *to_hash)
     {
     u32 string_length = cstring_length(to_hash);
 
-    char upper_string[255] = {0};
-    if (string_length > 255)
+    char upper_string[256] = {0};
+    if (string_length > 256)
         {
         fl_printf("Whoops, guess filenames can be bigger than 256 characters...");
         return 0;
@@ -114,7 +114,7 @@ fl_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
     u8 *buffer_begin = pack2_buffer;
 
     // TODO(rhett): Verify magic
-    u8 magic[3] = {0};
+    u8 magic[3];
     fl_memcpy(pack2_buffer, magic, 3);
     pack2_buffer += 3;
 
@@ -137,7 +137,7 @@ fl_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
     // TODO(rhett): We should probably move allocation out of here
     result.asset2s = fl_cast(fl_Asset2 *)fl_alloc(result.asset_count * sizeof(fl_Asset2));
 
-    fl_Asset2 *ptr_asset2s = 0;
+    fl_Asset2 *ptr_asset2s;
     for (u32 i = 0; i < result.asset_count; ++i)
         {
         ptr_asset2s = &result.asset2s[i];
@@ -200,7 +200,7 @@ fl_read_asset2(fl_Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_ass
         // NOTE(rhett): Asset is zipped
         case 0x01:
         case 0x11:
-            fl_printf("ZIPPED\n");
+            // fl_printf("ZIPPED\n");
 
             // NOTE(rhett): Skip A1B2C3D4
             pack2_buffer += 4;
@@ -234,14 +234,6 @@ fl_export_assets_from_pack2(char *pack_path, char *output_folder)
     u8 *pack_buffer = buffer_begin;
     u8 *asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
 
-    fl_eval_print_u32(FL_PACK2_BUFFER_SIZE);
-    fl_eval_print_u32(FL_ASSET2_BUFFER_SIZE);
-    fl_eval_print_u32(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
-
-    fl_eval_print_u64(buffer_begin);
-    fl_eval_print_u64(pack_buffer);
-    fl_eval_print_u64(asset_buffer);
-
     fl_Pack2 pack = fl_load_pack2(pack_path,
                                   pack_buffer,
                                   FL_PACK2_BUFFER_SIZE);
@@ -250,7 +242,6 @@ fl_export_assets_from_pack2(char *pack_path, char *output_folder)
     for (int i = 0; i < pack.asset_count; ++i)
         {
         fl_Asset2 *ptr_asset = &pack.asset2s[i];
-        fl_eval_print_u32(ptr_asset->name_hash);
 
         pack_buffer = buffer_begin + ptr_asset->data_offset;
         *ptr_asset = fl_read_asset2(*ptr_asset,
@@ -260,16 +251,15 @@ fl_export_assets_from_pack2(char *pack_path, char *output_folder)
 
         if (ptr_asset->unzipped_data_length == 0)
             {
-            fl_printf("Skipping unzipped asset...");
+            fl_printf("Skipping unzipped asset...\n");
             continue;
             }
 
-        char output_path[255];
+        char output_path[256];
         sprintf(output_path,
                 "%s\\%016llx.bin",
                 output_folder,
                 ptr_asset->name_hash);
-        fl_eval_print_cstr(output_path);
         fl_w32_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
         }
     } 

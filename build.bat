@@ -8,5 +8,5 @@ rem TODO(rhett): Evaluate if I should stick external code in seperate translatio
 rem cl /c -FC -Zi ..\src\external\lookup2.c
 rem cl /c -FC -Zi ..\src\external\crc64.c
 rem cl -FC -Zi ..\example.c lookup2.obj crc64.obj
-cl -FC -Zi ..\example.c
+cl -FC -Zi ..\src\example.c
 popd
