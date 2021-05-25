@@ -7,9 +7,9 @@
 // Defines
 //----------------------------------------------------------------
 #define fl_internal      static
-#define fl_global        static
-#define fl_local_persist static
 #define fl_external      extern
+#define fl_local_persist static
+#define fl_global        static
 #define fl_dll_external  fl_external __declspec(dllexport)
 
 #define KB(n) (n << 10)
@@ -17,9 +17,12 @@
 #define GB(n) ((fl_cast(u64)n) << 30)
 #define TB(n) ((fl_cast(u64)n) << 40)
 
-#define fl_printf         printf
-#define fl_eval_print(x)  fl_printf("%s = %u:%xh\n",#x,fl_cast(u32)x,fl_cast(u32)x)
-#define fl_cast(type)     (type)
+#define fl_printf             printf
+#define fl_eval_print_u32(x)  fl_printf("%s = %u:%xh\n",#x,fl_cast(u32)x,fl_cast(u32)x)
+#define fl_eval_print_i32(x)  fl_printf("%s = %d:%xh\n",#x,fl_cast(i32)x,fl_cast(i32)x)
+#define fl_eval_print_u64(x)  fl_printf("%s = %llu:%llxh\n",#x,fl_cast(u64)x,fl_cast(u64)x)
+#define fl_eval_print_cstr(x) fl_printf("%s = \"%s\"\n",#x,x)
+#define fl_cast(type)         (type)
 
 #define fl_alloc(sz)            fl_w32_memory_alloc(sz)
 #define fl_free(ptr)            fl_w32_memory_free(ptr)

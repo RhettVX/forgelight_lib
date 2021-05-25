@@ -26,10 +26,10 @@ struct fl_Asset2
 typedef struct fl_Pack2 fl_Pack2;
 struct fl_Pack2
     {
-    String8  pack_path;
-    u32      asset_count;
-    u64      pack_length;
-    fl_Asset2  *asset2s;
+    String8    pack_path;
+    u32        asset_count;
+    u64        pack_length;
+    fl_Asset2 *asset2s;
     };
 
 
@@ -37,21 +37,21 @@ struct fl_Pack2
 // Function declarations
 //----------------------------------------------------------------
 //// Helper functions
-fl_external u64
+fl_internal u64
 fl_crc64_uppercase(char *to_hash);
 
 //// Main functions
-fl_external fl_Pack2
+fl_internal fl_Pack2
 fl_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size);
 
-fl_external fl_Asset2
+fl_internal fl_Asset2
 fl_get_asset2_by_hash(u64 hash, fl_Pack2 pack);
 
-fl_external fl_Asset2
+fl_internal fl_Asset2
 fl_get_asset2_by_name(char *name, fl_Pack2 pack);
 
 // NOTE(rhett): Returns a copy of asset with the unzipped asset size.
-fl_external fl_Asset2
+fl_internal fl_Asset2
 fl_read_asset2(fl_Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size);
 
 
@@ -67,7 +67,7 @@ fl_read_asset2(fl_Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_ass
 //----------------------------------------------------------------
 //// Helper Functions
 // TODO(rhett): Clean this up
-fl_external u64
+fl_internal u64
 fl_crc64_uppercase(char *to_hash)
     {
     u32 string_length = cstring_length(to_hash);
@@ -93,7 +93,7 @@ fl_crc64_uppercase(char *to_hash)
     }
 
 //// Main functions
-fl_external fl_Pack2
+fl_internal fl_Pack2
 fl_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
     {
     fl_Pack2 result = {0};
@@ -162,7 +162,7 @@ fl_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
     }
 
 // TODO(rhett): We may be able to optimize this as long as the hashes are in order of least to greatest
-fl_external fl_Asset2
+fl_internal fl_Asset2
 fl_get_asset2_by_hash(u64 hash, fl_Pack2 pack)
     {
     for (u32 i = 0; i < pack.asset_count; ++i)
@@ -176,7 +176,7 @@ fl_get_asset2_by_hash(u64 hash, fl_Pack2 pack)
     return empty;
     }
 
-fl_external fl_Asset2
+fl_internal fl_Asset2
 fl_get_asset2_by_name(char *name, fl_Pack2 pack)
     {
     // TODO(rhett): Check if name hash is already cached
@@ -184,7 +184,7 @@ fl_get_asset2_by_name(char *name, fl_Pack2 pack)
     return fl_get_asset2_by_hash(hash, pack);
     }
 
-fl_external fl_Asset2
+fl_internal fl_Asset2
 fl_read_asset2(fl_Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size)
     {
     switch(asset.zip_flag)
@@ -193,8 +193,6 @@ fl_read_asset2(fl_Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_ass
         case 0x00:
         case 0x10:
             fl_printf("UNZIPPED\n");
-
-
             // TODO(rhett): 
             return asset;
             break;
@@ -226,6 +224,55 @@ fl_read_asset2(fl_Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_ass
 
     return asset;
     }
+
+// TODO(rhett): maybe we'll take a namelist here
+// NOTE(rhett): This will allocate 600mb
+fl_internal void
+fl_export_assets_from_pack2(char *pack_path, char *output_folder)
+    {
+    u8 *buffer_begin = fl_alloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
+    u8 *pack_buffer = buffer_begin;
+    u8 *asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
+
+    fl_eval_print_u32(FL_PACK2_BUFFER_SIZE);
+    fl_eval_print_u32(FL_ASSET2_BUFFER_SIZE);
+    fl_eval_print_u32(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
+
+    fl_eval_print_u64(buffer_begin);
+    fl_eval_print_u64(pack_buffer);
+    fl_eval_print_u64(asset_buffer);
+
+    fl_Pack2 pack = fl_load_pack2(pack_path,
+                                  pack_buffer,
+                                  FL_PACK2_BUFFER_SIZE);
+
+    fl_w32_create_folder(output_folder);
+    for (int i = 0; i < pack.asset_count; ++i)
+        {
+        fl_Asset2 *ptr_asset = &pack.asset2s[i];
+        fl_eval_print_u32(ptr_asset->name_hash);
+
+        pack_buffer = buffer_begin + ptr_asset->data_offset;
+        *ptr_asset = fl_read_asset2(*ptr_asset,
+                                    pack_buffer,
+                                    asset_buffer,
+                                    FL_PACK2_BUFFER_SIZE);
+
+        if (ptr_asset->unzipped_data_length == 0)
+            {
+            fl_printf("Skipping unzipped asset...");
+            continue;
+            }
+
+        char output_path[255];
+        sprintf(output_path,
+                "%s\\%016llx.bin",
+                output_folder,
+                ptr_asset->name_hash);
+        fl_eval_print_cstr(output_path);
+        fl_w32_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
+        }
+    } 
 
 
 #endif // FL_PACK2_IMPL

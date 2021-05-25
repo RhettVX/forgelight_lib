@@ -119,7 +119,9 @@ fl_w32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
                    &bytes_written,
                    0))
         {
-        fl_printf("Unable to write file: %s\n", file_path);
+        fl_printf("Unable to write file \"%s\" - GetLastError(%d)\n",
+                  file_path,
+                  GetLastError());
         CloseHandle(file_handle);
         return 0;
         }
@@ -133,7 +135,9 @@ fl_w32_create_folder(char *folder_path)
     {
     if (!CreateDirectory(folder_path, 0))
         {
-        fl_printf("Unable to create folder: %s\n", folder_path);
+        fl_printf("CreateDirectory error on \"%s\" - GetLastError(%d)\n",
+                  folder_path,
+                  GetLastError());
         return 0;
         }
 
