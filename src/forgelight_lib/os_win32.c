@@ -1,47 +1,19 @@
-//================================================================
-#ifndef FL_W32_UTILS_H
-#define FL_W32_UTILS_H
+#include <windows.h>
 
-
-//----------------------------------------------------------------
-// Function declarations
-//----------------------------------------------------------------
-//// Memory functions
-fl_internal u8 *
-fl_w32_memory_alloc(u32 size);
-
-fl_internal b32
-fl_w32_memory_free(u8 *pointer);
-
-//// File functions
-fl_internal b32
-fl_w32_read_entire_file(char *file_path, u8 *buffer, u32 max_size);
-
-fl_internal b32
-fl_w32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length);
-
-fl_internal b32
-fl_w32_create_folder(char *folder_path);
-
-
-#endif // FL_W32_UTILS_H
-//================================================================
-
-//================================================================
-#ifdef FL_W32_UTILS_IMPL
+#include "../forgelight_lib.h"
 
 
 //----------------------------------------------------------------
 // Memory functions
 //----------------------------------------------------------------
-fl_internal u8 *
-fl_w32_memory_alloc(u32 size)
+u8 *
+win32_memory_alloc(u32 size)
     {
     return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
     }
 
-fl_internal b32
-fl_w32_memory_free(u8 *pointer)
+b32
+win32_memory_free(void *pointer)
     {
     return HeapFree(GetProcessHeap(), 0, pointer);
     }
@@ -52,8 +24,8 @@ fl_w32_memory_free(u8 *pointer)
 //----------------------------------------------------------------
 // TODO(rhett): This only reads a 4gb file, but the pack2 format can handle larger.
 // TODO(rhett): Maybe use a result variable.
-fl_internal b32
-fl_w32_read_entire_file(char *file_path, u8 *buffer, u32 max_size)
+b32
+win32_read_entire_file(char *file_path, u8 *buffer, u32 max_size)
     {
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_READ,
@@ -88,8 +60,8 @@ fl_w32_read_entire_file(char *file_path, u8 *buffer, u32 max_size)
     return 1;
     }
 
-fl_internal b32
-fl_w32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
+b32
+win32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
     {
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_WRITE,
@@ -100,14 +72,14 @@ fl_w32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
                                     0);
     if (file_handle == INVALID_HANDLE_VALUE)
         {
-        fl_printf("Unable to open file: %s\n", file_path);
+        printf("Unable to open file: %s\n", file_path);
         return 0;
         }
 
 
     if (!buffer)
         {
-        fl_printf("Buffer is empty.\n");
+        printf("Buffer is empty.\n");
         CloseHandle(file_handle);
         return 0;
         }
@@ -119,7 +91,7 @@ fl_w32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
                    &bytes_written,
                    0))
         {
-        fl_printf("Unable to write file \"%s\" - GetLastError(%d)\n",
+        printf("Unable to write file \"%s\" - GetLastError(%d)\n",
                   file_path,
                   GetLastError());
         CloseHandle(file_handle);
@@ -130,12 +102,12 @@ fl_w32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
     return 1;
     }
 
-fl_internal b32
-fl_w32_create_folder(char *folder_path)
+b32
+win32_create_folder(char *folder_path)
     {
     if (!CreateDirectory(folder_path, 0))
         {
-        fl_printf("CreateDirectory error on \"%s\" - GetLastError(%d)\n",
+        printf("CreateDirectory error on \"%s\" - GetLastError(%d)\n",
                   folder_path,
                   GetLastError());
         return 0;
@@ -143,7 +115,3 @@ fl_w32_create_folder(char *folder_path)
 
     return 1;
     }
-
-
-#endif // FL_W32_UTILS_IMPL
-//================================================================
