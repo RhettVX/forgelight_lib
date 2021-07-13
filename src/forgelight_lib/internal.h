@@ -2,12 +2,20 @@
 #define INTERNAL_H
 
 
+// TODO(rhett): Name this better
+//----------------------------------------------------------------
+// External libs
+//----------------------------------------------------------------
+extern u64
+crc64(u64 crc, char const *s, u64 l);
+
+
 //----------------------------------------------------------------
 // Endian IO
 //----------------------------------------------------------------
 //// Little endian
 extern u32
-endian_get_u32_le(u8 *data); // TODO(rhett): Is this name too hard to read?
+endian_get_u32_le(u8 *data);
 
 extern u64
 endian_get_u64_le(u8 *data);

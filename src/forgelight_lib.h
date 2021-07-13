@@ -23,8 +23,8 @@
 typedef struct String8 String8;
 struct String8
     {
-    u32  length;
     u8  *content;
+    u32  length;
     };
 
 extern u32
@@ -65,20 +65,20 @@ pack2_crc64_uppercase(char *to_hash);
 
 //// Main functions
 extern Pack2
-pack2_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size);
+pack2_load_from_file(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size);
 
 extern Asset2
-pack2_get_asset2_by_hash(u64 hash, Pack2 pack);
+pack2_asset2_get_by_hash(u64 hash, Pack2 pack);
 
 extern Asset2
-pack2_get_asset2_by_name(char *name, Pack2 pack);
+pack2_asset2_get_by_name(char *name, Pack2 pack);
 
 // NOTE(rhett): Returns a copy of asset with the unzipped asset size.
 extern Asset2
-pack2_read_asset2(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size);
+pack2_asset2_load_to_buffer(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size);
 
 extern void
-pack2_export_assets_from_pack2(char *pack_path, char *output_folder);
+pack2_export_assets_as_files(char *pack_path, char *output_folder);
 
 
 #endif // FORGELIGHT_LIB_H

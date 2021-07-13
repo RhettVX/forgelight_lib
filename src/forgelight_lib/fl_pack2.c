@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #include "../external/miniz.h"
 
 #include "../forgelight_lib.h"
 #include "internal.h"
-#include "os.h"
 
 //----------------------------------------------------------------
 // Function definitions
@@ -40,7 +35,7 @@ pack2_crc64_uppercase(char *to_hash)
 
 //// Main functions
 Pack2
-pack2_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
+pack2_load_from_file(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
     {
     Pack2 result = {0};
 
@@ -109,7 +104,7 @@ pack2_load_pack2(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
 
 // TODO(rhett): We may be able to optimize this as long as the hashes are in order of least to greatest
 Asset2
-pack2_get_asset2_by_hash(u64 hash, Pack2 pack)
+pack2_asset2_get_by_hash(u64 hash, Pack2 pack)
     {
     for (u32 i = 0; i < pack.asset_count; ++i)
         {
@@ -123,15 +118,15 @@ pack2_get_asset2_by_hash(u64 hash, Pack2 pack)
     }
 
 Asset2
-pack2_get_asset2_by_name(char *name, Pack2 pack)
+pack2_asset2_get_by_name(char *name, Pack2 pack)
     {
     // TODO(rhett): Check if name hash is already cached
     u64 hash = pack2_crc64_uppercase(name);
-    return pack2_get_asset2_by_hash(hash, pack);
+    return pack2_asset2_get_by_hash(hash, pack);
     }
 
 Asset2
-pack2_read_asset2(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size)
+pack2_asset2_load_to_buffer(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size)
     {
     switch(asset.zip_flag)
         {
@@ -174,15 +169,15 @@ pack2_read_asset2(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_ass
 // TODO(rhett): maybe we'll take a namelist here
 // NOTE(rhett): This will allocate 600mb
 void
-pack2_export_assets_from_pack2(char *pack_path, char *output_folder)
+pack2_export_assets_as_files(char *pack_path, char *output_folder)
     {
     u8 *buffer_begin = malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
     u8 *pack_buffer = buffer_begin;
     u8 *asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
 
-    Pack2 pack = pack2_load_pack2(pack_path,
-                                  pack_buffer,
-                                  FL_PACK2_BUFFER_SIZE);
+    Pack2 pack = pack2_load_from_file(pack_path,
+                                      pack_buffer,
+                                      FL_PACK2_BUFFER_SIZE);
 
     os_create_folder(output_folder);
     for (int i = 0; i < pack.asset_count; ++i)
@@ -190,10 +185,10 @@ pack2_export_assets_from_pack2(char *pack_path, char *output_folder)
         Asset2 *ptr_asset = &pack.asset2s[i];
 
         pack_buffer = buffer_begin + ptr_asset->data_offset;
-        *ptr_asset = pack2_read_asset2(*ptr_asset,
-                                    pack_buffer,
-                                    asset_buffer,
-                                    FL_PACK2_BUFFER_SIZE);
+        *ptr_asset = pack2_asset2_load_to_buffer(*ptr_asset,
+                                                 pack_buffer,
+                                                 asset_buffer,
+                                                 FL_PACK2_BUFFER_SIZE);
 
         if (ptr_asset->unzipped_data_length == 0)
             {
