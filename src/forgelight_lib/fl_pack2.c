@@ -9,7 +9,7 @@
 //// Helper Functions
 // TODO(rhett): Clean this up
 u64
-pack2_crc64_uppercase(char *to_hash)
+pack2_crc64_uppercase(char* to_hash)
     {
     u32 string_length = strings_cstring_length(to_hash);
 
@@ -35,7 +35,7 @@ pack2_crc64_uppercase(char *to_hash)
 
 //// Main functions
 Pack2
-pack2_load_from_file(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
+pack2_load_from_file(char* pack_path, u8* pack2_buffer, u32 pack2_max_size)
     {
     Pack2 result = {0};
 
@@ -52,14 +52,14 @@ pack2_load_from_file(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
         return result;
         }
 
-    u8 *buffer_begin = pack2_buffer;
+    u8* buffer_begin = pack2_buffer;
 
     // TODO(rhett): Verify magic
     u8 magic[3];
     memcpy(pack2_buffer, magic, 3);
     pack2_buffer += 3;
 
-    u8 version = *pack2_buffer;
+    u8 version =* pack2_buffer;
     pack2_buffer += 1;
 
     result.asset_count = endian_get_u32_le(pack2_buffer);
@@ -76,9 +76,9 @@ pack2_load_from_file(char *pack_path, u8 *pack2_buffer, u32 pack2_max_size)
 
     // NOTE(rhett): Load asset info
     // TODO(rhett): We should probably move allocation out of here
-    result.asset2s = (Asset2 *)malloc(result.asset_count * sizeof(Asset2));
+    result.asset2s = (Asset2* )malloc(result.asset_count*  sizeof(Asset2));
 
-    Asset2 *ptr_asset2s;
+    Asset2* ptr_asset2s;
     for (u32 i = 0; i < result.asset_count; ++i)
         {
         ptr_asset2s = &result.asset2s[i];
@@ -118,7 +118,7 @@ pack2_asset2_get_by_hash(u64 hash, Pack2 pack)
     }
 
 Asset2
-pack2_asset2_get_by_name(char *name, Pack2 pack)
+pack2_asset2_get_by_name(char* name, Pack2 pack)
     {
     // TODO(rhett): Check if name hash is already cached
     u64 hash = pack2_crc64_uppercase(name);
@@ -126,7 +126,7 @@ pack2_asset2_get_by_name(char *name, Pack2 pack)
     }
 
 Asset2
-pack2_asset2_load_to_buffer(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u32 max_asset2_size)
+pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u32 max_asset2_size)
     {
     switch(asset.zip_flag)
         {
@@ -169,11 +169,11 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8 *pack2_buffer, u8 *asset2_buffer, u
 // TODO(rhett): maybe we'll take a namelist here
 // NOTE(rhett): This will allocate 600mb
 void
-pack2_export_assets_as_files(char *pack_path, char *output_folder)
+pack2_export_assets_as_files(char* pack_path, char* output_folder)
     {
-    u8 *buffer_begin = malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
-    u8 *pack_buffer = buffer_begin;
-    u8 *asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
+    u8* buffer_begin = malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
+    u8* pack_buffer = buffer_begin;
+    u8* asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
 
     Pack2 pack = pack2_load_from_file(pack_path,
                                       pack_buffer,
@@ -182,10 +182,10 @@ pack2_export_assets_as_files(char *pack_path, char *output_folder)
     os_create_folder(output_folder);
     for (int i = 0; i < pack.asset_count; ++i)
         {
-        Asset2 *ptr_asset = &pack.asset2s[i];
+        Asset2* ptr_asset = &pack.asset2s[i];
 
         pack_buffer = buffer_begin + ptr_asset->data_offset;
-        *ptr_asset = pack2_asset2_load_to_buffer(*ptr_asset,
+       * ptr_asset = pack2_asset2_load_to_buffer(*ptr_asset,
                                                  pack_buffer,
                                                  asset_buffer,
                                                  FL_PACK2_BUFFER_SIZE);

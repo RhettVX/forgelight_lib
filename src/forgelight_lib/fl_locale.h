@@ -4,7 +4,7 @@
 
 
 fl_internal u32
-fl_lookup2(char *to_hash);
+fl_lookup2(char* to_hash);
 
 
 #endif // FL_LOCALE_H
@@ -15,7 +15,7 @@ fl_lookup2(char *to_hash);
 
 
 fl_internal u32
-fl_lookup2(char *to_hash)
+fl_lookup2(char* to_hash)
 {
     return hash(to_hash, cstring_length(to_hash), 0); 
 }

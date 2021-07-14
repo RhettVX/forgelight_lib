@@ -1,35 +1,37 @@
 #include <windows.h>
 
 #include "../forgelight_lib.h"
+#include "internal.h"
 
 
 //----------------------------------------------------------------
 // Memory functions
 //----------------------------------------------------------------
 #ifdef FL_DEBUG
-    u8 *
-    win32_memory_alloc(u32 size, uint line, char *file)
+    u8* 
+    win32_memory_alloc(u32 size, uint line, char* file)
         {
-        u8 *ptr = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
-        printf("[*] malloc, address=%p, size=%u, line=%u, file=%s\n", ptr, size, line, file);
-        return ptr;
+        void* ptr = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
+        printf("[*] win32_memory_alloc, address=%p, size=%u, line=%u, file=%s\n", ptr, size, line, file);
+        debug_allocation_register(ptr, line, file);
+        return (u8*)ptr;
         }
 
     b32
-    win32_memory_free(void *pointer, uint line, char *file)
+    win32_memory_free(void* pointer, uint line, char* file)
         {
-        printf("[*] free, address=%p, line=%u, file=%s\n", pointer, line, file);
+        printf("[*] win32_memory_free, address=%p, line=%u, file=%s\n", pointer, line, file);
         return HeapFree(GetProcessHeap(), 0, pointer);
         }
 #else
-    u8 *
+    u8* 
     win32_memory_alloc(u32 size)
         {
         return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
         }
 
     b32
-    win32_memory_free(void *pointer)
+    win32_memory_free(void* pointer)
         {
         return HeapFree(GetProcessHeap(), 0, pointer);
         }
@@ -42,7 +44,7 @@
 // TODO(rhett): This only reads a 4gb file, but the pack2 format can handle larger.
 // TODO(rhett): Maybe use a result variable.
 b32
-win32_read_entire_file(char *file_path, u8 *buffer, u32 max_size)
+win32_read_entire_file(char* file_path, u8* buffer, u32 max_size)
     {
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_READ,
@@ -78,7 +80,7 @@ win32_read_entire_file(char *file_path, u8 *buffer, u32 max_size)
     }
 
 b32
-win32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
+win32_write_buffer_to_file(char* file_path, u8* buffer, u32 buffer_length)
     {
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_WRITE,
@@ -120,7 +122,7 @@ win32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length)
     }
 
 b32
-win32_create_folder(char *folder_path)
+win32_create_folder(char* folder_path)
     {
     if (!CreateDirectory(folder_path, 0))
         {

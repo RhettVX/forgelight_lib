@@ -3,46 +3,46 @@
 
 
 //// Memory functions
-extern u8 *
+extern u8* 
 os_memory_alloc(u32 size);
 
 extern b32
-os_memory_free(void *pointer);
+os_memory_free(void* pointer);
 
 //// File functions
 extern b32
-os_read_entire_file(char *file_path, u8 *buffer, u32 max_size);
+os_read_entire_file(char* file_path, u8* buffer, u32 max_size);
 
 extern b32
-os_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length);
+os_write_buffer_to_file(char* file_path, u8* buffer, u32 buffer_length);
 
 extern b32
-os_create_folder(char *folder_path);
+os_create_folder(char* folder_path);
 
 //================================================================
 #ifdef FL_WIN32
     #ifdef FL_DEBUG
-        extern u8 *
-        win32_memory_alloc(u32 size, uint line, char *file);
+        extern u8* 
+        win32_memory_alloc(u32 size, uint line, char* file);
 
         extern b32
-        win32_memory_free(void *pointer, uint line, char *file);
+        win32_memory_free(void* pointer, uint line, char* file);
     #else
-        extern u8 *
+        extern u8* 
         win32_memory_alloc(u32 size);
 
         extern b32
-        win32_memory_free(void *pointer);
+        win32_memory_free(void* pointer);
     #endif // FL_DEBUG
 
     extern b32
-    win32_read_entire_file(char *file_path, u8 *buffer, u32 max_size);
+    win32_read_entire_file(char* file_path, u8* buffer, u32 max_size);
 
     extern b32
-    win32_write_buffer_to_file(char *file_path, u8 *buffer, u32 buffer_length);
+    win32_write_buffer_to_file(char* file_path, u8* buffer, u32 buffer_length);
 
     extern b32
-    win32_create_folder(char *folder_path);
+    win32_create_folder(char* folder_path);
 #endif // FL_WIN32
 
 //================================================================

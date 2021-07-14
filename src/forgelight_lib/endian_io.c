@@ -3,7 +3,7 @@
 
 //// Little endian
 u32
-endian_get_u32_le(u8 *data)
+endian_get_u32_le(u8* data)
     {
     u32 result = 0;
     for (u32 i = 4; i > 0; --i)
@@ -16,7 +16,7 @@ endian_get_u32_le(u8 *data)
     }
 
 u64
-endian_get_u64_le(u8 *data)
+endian_get_u64_le(u8* data)
     {
     u64 result = 0;
     for (u64 i = 8; i > 0; --i)
@@ -30,7 +30,7 @@ endian_get_u64_le(u8 *data)
 
 //// Big endian
 u16
-endian_get_u16_be(u8 *data)
+endian_get_u16_be(u8* data)
     {
     u16 result = 0;
     for (u32 i = 0; i < 2; ++i)
@@ -43,7 +43,7 @@ endian_get_u16_be(u8 *data)
     }
 
 u32
-endian_get_u32_be(u8 *data)
+endian_get_u32_be(u8* data)
     {
     u32 result = 0;
     for (u32 i = 0; i < 4; ++i)
