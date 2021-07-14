@@ -3,9 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 
-#define FL_WIN32
 #include "forgelight_lib/base.h"
 #include "forgelight_lib/os.h"
 

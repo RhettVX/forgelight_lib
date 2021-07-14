@@ -202,6 +202,7 @@ pack2_export_assets_as_files(char *pack_path, char *output_folder)
                 output_folder,
                 ptr_asset->name_hash);
         os_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
+        break; // TODO(rhett): 
         }
         
     free(buffer_begin);

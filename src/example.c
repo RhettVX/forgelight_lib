@@ -1,10 +1,3 @@
-// NOTE(rhett): Headers
-#include <windows.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "forgelight_lib.h"
 
 

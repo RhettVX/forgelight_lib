@@ -6,17 +6,34 @@
 //----------------------------------------------------------------
 // Memory functions
 //----------------------------------------------------------------
-u8 *
-win32_memory_alloc(u32 size)
-    {
-    return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
-    }
+#ifdef FL_DEBUG
+    u8 *
+    win32_memory_alloc(u32 size, uint line, char *file)
+        {
+        u8 *ptr = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
+        printf("[*] malloc, address=%p, size=%u, line=%u, file=%s\n", ptr, size, line, file);
+        return ptr;
+        }
 
-b32
-win32_memory_free(void *pointer)
-    {
-    return HeapFree(GetProcessHeap(), 0, pointer);
-    }
+    b32
+    win32_memory_free(void *pointer, uint line, char *file)
+        {
+        printf("[*] free, address=%p, line=%u, file=%s\n", pointer, line, file);
+        return HeapFree(GetProcessHeap(), 0, pointer);
+        }
+#else
+    u8 *
+    win32_memory_alloc(u32 size)
+        {
+        return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
+        }
+
+    b32
+    win32_memory_free(void *pointer)
+        {
+        return HeapFree(GetProcessHeap(), 0, pointer);
+        }
+#endif // FL_DEBUG
 
 
 //----------------------------------------------------------------
