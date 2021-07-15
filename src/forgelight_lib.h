@@ -19,11 +19,12 @@
 //----------------------------------------------------------------
 // Strings
 //----------------------------------------------------------------
-typedef struct
+typedef struct String8 String8;
+struct String8
     {
     u32 length;
     u8* content;
-    } String8;
+    };
 
 extern u32
 strings_cstring_length(char* cstring);
@@ -38,22 +39,24 @@ strings_cstring_to_string8(char* cstring);
 #define FL_PACK2_BUFFER_SIZE  MB(500)
 #define FL_ASSET2_BUFFER_SIZE MB(100)
 
-typedef struct
+typedef struct Asset2 Asset2;
+struct Asset2
     {
     u64 name_hash;
     u64 data_offset;
     u64 raw_data_length;
     u32 unzipped_data_length;
     u32 zip_flag;
-    } Asset2;
+    };
 
-typedef struct
+typedef struct Pack2 Pack2;
+struct Pack2
     {
     String8 pack_path;
     u32     asset_count;
     u64     pack_length;
     Asset2* asset2s;
-    } Pack2;
+    };
 
 //// Helper functions
 extern u64

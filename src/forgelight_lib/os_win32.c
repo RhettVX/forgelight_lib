@@ -8,23 +8,34 @@
 // Memory functions
 //----------------------------------------------------------------
 #ifdef FL_DEBUG
-    u8* 
+    void* 
     win32_memory_alloc(u32 size, uint line, char* file)
         {
         void* ptr = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
         printf("[*] win32_memory_alloc, address=%p, size=%u, line=%u, file=%s\n", ptr, size, line, file);
         debug_allocation_register(ptr, line, file);
-        return (u8*)ptr;
+        return ptr;
         }
 
     b32
     win32_memory_free(void* pointer, uint line, char* file)
         {
-        printf("[*] win32_memory_free, address=%p, line=%u, file=%s\n", pointer, line, file);
-        return HeapFree(GetProcessHeap(), 0, pointer);
+        // NOTE(rhett): If I mark as freed after HeapFree(), I will crash before hitting a printf.
+        debug_allocation_mark_as_freed(pointer, line, file);
+
+        b32 result = HeapFree(GetProcessHeap(), 0, pointer);
+        printf("[*] win32_memory_free, address=%p, result=%d line=%u, file=%s\n", pointer, result, line, file);
+        if (!result)
+            {
+            // NOTE(rhett): We should crash before even hitting this point.
+            printf("[X] Unable to free pointer! address=%p, line=%u, file=%s\n", pointer, line, file);
+            abort();
+            }
+
+        return result;
         }
 #else
-    u8* 
+    void* 
     win32_memory_alloc(u32 size)
         {
         return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);

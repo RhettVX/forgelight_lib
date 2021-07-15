@@ -159,7 +159,7 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u
             mz_uncompress(asset2_buffer,
                           &asset.unzipped_data_length,
                           pack2_buffer,
-                          asset.raw_data_length);
+                          (mz_ulong)asset.raw_data_length);
             break;
         }
 
@@ -171,7 +171,7 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u
 void
 pack2_export_assets_as_files(char* pack_path, char* output_folder)
     {
-    u8* buffer_begin = malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
+    u8* buffer_begin = (u8*)malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
     u8* pack_buffer = buffer_begin;
     u8* asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
 
@@ -180,12 +180,12 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
                                       FL_PACK2_BUFFER_SIZE);
 
     os_create_folder(output_folder);
-    for (int i = 0; i < pack.asset_count; ++i)
+    for (uint i = 0; i < pack.asset_count; ++i)
         {
         Asset2* ptr_asset = &pack.asset2s[i];
 
         pack_buffer = buffer_begin + ptr_asset->data_offset;
-       * ptr_asset = pack2_asset2_load_to_buffer(*ptr_asset,
+        *ptr_asset = pack2_asset2_load_to_buffer(*ptr_asset,
                                                  pack_buffer,
                                                  asset_buffer,
                                                  FL_PACK2_BUFFER_SIZE);
@@ -196,8 +196,10 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
             continue;
             }
 
+        // TODO(rhett): don't hardcode the path size
         char output_path[256];
-        sprintf(output_path,
+        sprintf_s(output_path,
+                256,
                 "%s\\%016llx.bin",
                 output_folder,
                 ptr_asset->name_hash);

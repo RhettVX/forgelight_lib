@@ -3,7 +3,7 @@
 
 
 //// Memory functions
-extern u8* 
+extern void* 
 os_memory_alloc(u32 size);
 
 extern b32
@@ -22,13 +22,13 @@ os_create_folder(char* folder_path);
 //================================================================
 #ifdef FL_WIN32
     #ifdef FL_DEBUG
-        extern u8* 
+        extern void* 
         win32_memory_alloc(u32 size, uint line, char* file);
 
         extern b32
         win32_memory_free(void* pointer, uint line, char* file);
     #else
-        extern u8* 
+        extern void* 
         win32_memory_alloc(u32 size);
 
         extern b32

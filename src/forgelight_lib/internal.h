@@ -31,28 +31,37 @@ endian_get_u32_be(u8* data);
 //----------------------------------------------------------------
 // Debug
 //----------------------------------------------------------------
-#define MAX_ALLOCATIONS 256
+#ifdef FL_DEBUG
 
-typedef struct
-    {
-    void* pointer;
-    b32   has_been_freed;
-    } AllocationEntry;
+    #define MAX_ALLOCATIONS 256
 
-typedef struct
-    {
-    uint            tail;
-    uint            capacity;
-    AllocationEntry allocation_array[MAX_ALLOCATIONS];
-    } AllocationTable;
+    typedef struct AllocationEntry AllocationEntry;
+    struct AllocationEntry
+        {
+        void* pointer;
+        b32   has_been_freed;
+        };
 
-extern AllocationTable debug_allocation_table_global;
+    typedef struct AllocationTable AllocationTable;
+    struct AllocationTable
+        {
+        uint            tail;
+        uint            capacity;
+        AllocationEntry allocation_array[MAX_ALLOCATIONS];
+        };
 
-extern void
-debug_allocation_register(void* pointer, uint line, char* file);
+    extern AllocationTable debug_allocation_table_global;
 
-extern void
-debug_allocation_mark_as_freed(void* pointer, uint line, char* file);
+    extern void
+    debug_allocation_register(void* pointer, uint line, char* file);
+
+    extern void
+    debug_allocation_mark_as_freed(void* pointer, uint line, char* file);
+
+    extern AllocationEntry*
+    debug_allocation_get_by_pointer(void* pointer);
+    
+#endif // FL_DEBUG
 
 
 #endif // INTERNAL_H
