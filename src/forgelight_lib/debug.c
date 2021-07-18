@@ -4,28 +4,33 @@
 #include "internal.h"
 
 
-AllocationTable debug_allocation_table_global = {.tail = 0,
-                                                 .capacity = MAX_ALLOCATIONS,
-                                                 .allocation_array = {0}};
+global AllocationTable debug_allocation_table_global = {.count = 0,
+                                                        .capacity = MAX_ALLOCATIONS,
+                                                        .entries = {0}};
+
 
 void
 debug_allocation_register(void* pointer, uint line, char* file)
     {
-    if (debug_allocation_table_global.tail == debug_allocation_table_global.capacity)
+    if (debug_allocation_table_global.count == debug_allocation_table_global.capacity)
         {
-        printf("[X] Exceeded max allocations! capacity=%u, tail=%u, line=%u, file=%s\n",
+        printf("[X] Exceeded max allocations! capacity=%u, count=%u; %s(%u)\n",
                debug_allocation_table_global.capacity,
-               debug_allocation_table_global.tail,
-               line,
-               file);
+               debug_allocation_table_global.count,
+               file,
+               line);
 
         // TODO(rhett): Not sure about this, but it should work for now
         abort();
         }
 
-    AllocationEntry entry = {pointer, 0};
-    debug_allocation_table_global.allocation_array[debug_allocation_table_global.tail] = entry;
-    ++debug_allocation_table_global.tail;
+    AllocationEntry entry = {.pointer = pointer,
+                             .has_been_freed = 0,
+                             .origin_file = file,
+                             .origin_line = line};
+
+    debug_allocation_table_global.entries[debug_allocation_table_global.count] = entry;
+    ++debug_allocation_table_global.count;
     return;
     }
 
@@ -36,20 +41,20 @@ debug_allocation_mark_as_freed(void* pointer, uint line, char* file)
     AllocationEntry* entry = debug_allocation_get_by_pointer(pointer);
     if (entry == 0)
         {
-        printf("[X] Attempting to free a pointer that has not been allocated! address=%p, line=%u, file=%s\n",
+        printf("[X] Attempting to free a pointer that has not been allocated! address=%p; %s(%u)\n",
                pointer,
-               line,
-               file);
+               file,
+               line);
         abort();
         }
 
     // NOTE(rhett): Attempt to free a pointer that has already been freed
     if (entry->has_been_freed)
         {
-        printf("[X] Attempting to free a pointer that has already been freed! address=%p, line=%u, file=%s\n",
+        printf("[X] Attempting to free a pointer that has already been freed! address=%p; %s(%u)\n",
                pointer,
-               line,
-               file);
+               file,
+               line);
         abort();
         }
 
@@ -60,16 +65,34 @@ debug_allocation_mark_as_freed(void* pointer, uint line, char* file)
 AllocationEntry*
 debug_allocation_get_by_pointer(void* pointer)
     {
-    for (uint i = 0; i < debug_allocation_table_global.tail; ++i)
+    for (uint i = 0; i < debug_allocation_table_global.count; ++i)
         {
-        if (debug_allocation_table_global.allocation_array[i].pointer == pointer)
+        if (debug_allocation_table_global.entries[i].pointer == pointer)
             {
-            return &debug_allocation_table_global.allocation_array[i];
+            return &debug_allocation_table_global.entries[i];
             }
         }
     // TODO(rhett): Should this be a fatal error alone?
     printf("[!] Unable to get allocation entry by pointer! address=%p\n", pointer);
     return 0;
     }
+
+void
+debug_allocation_check_for_unfreed_memory()
+    {
+    for (uint i = 0; i < debug_allocation_table_global.count; ++i)
+        {
+        if (!debug_allocation_table_global.entries[i].has_been_freed)
+            {
+            printf("[!] Memory located at %p has not yet been freed!; %s(%u)\n",
+                   debug_allocation_table_global.entries[i].pointer,
+                   debug_allocation_table_global.entries[i].origin_file,
+                   debug_allocation_table_global.entries[i].origin_line);
+
+            return;
+            }
+        }
+    }
+
 
 #endif // FL_DEBUG

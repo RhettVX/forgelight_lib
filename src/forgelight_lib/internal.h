@@ -40,17 +40,19 @@ endian_get_u32_be(u8* data);
         {
         void* pointer;
         b32   has_been_freed;
+        char* origin_file;
+        uint  origin_line;
         };
 
     typedef struct AllocationTable AllocationTable;
     struct AllocationTable
         {
-        uint            tail;
+        uint            count;
         uint            capacity;
-        AllocationEntry allocation_array[MAX_ALLOCATIONS];
+        AllocationEntry entries[MAX_ALLOCATIONS];
         };
 
-    extern AllocationTable debug_allocation_table_global;
+    // extern AllocationTable debug_allocation_table_global;
 
     extern void
     debug_allocation_register(void* pointer, uint line, char* file);
@@ -60,6 +62,10 @@ endian_get_u32_be(u8* data);
 
     extern AllocationEntry*
     debug_allocation_get_by_pointer(void* pointer);
+
+    // NOTE(rhett): Also externed in forgelight_lib.h
+    extern void
+    debug_allocation_check_for_unfreed_memory();
     
 #endif // FL_DEBUG
 

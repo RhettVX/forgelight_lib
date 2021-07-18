@@ -24,6 +24,7 @@
 #define eval_print_i32(x)  printf("%s = %d:%xh\n",     #x, (i32)x, (i32)x)
 #define eval_print_u64(x)  printf("%s = %llu:%llxh\n", #x, (u64)x, (u64)x)
 #define eval_print_cstr(x) printf("%s = \"%s\"\n",     #x,      x)
+#define array_count(a)     sizeof(a) / sizeof(a[0])
 
 
 //----------------------------------------------------------------

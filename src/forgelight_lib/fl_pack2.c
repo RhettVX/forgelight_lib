@@ -3,13 +3,15 @@
 #include "../forgelight_lib.h"
 #include "internal.h"
 
+
 //----------------------------------------------------------------
 // Function definitions
 //----------------------------------------------------------------
 //// Helper Functions
 // TODO(rhett): Clean this up
+// NOTE(rhett): Calculates a crc64 hash of an asset's filename as used by pack2s
 u64
-pack2_crc64_uppercase(char* to_hash)
+pack2_names_calculate_hash(char* to_hash)
     {
     u32 string_length = strings_cstring_length(to_hash);
 
@@ -31,6 +33,49 @@ pack2_crc64_uppercase(char* to_hash)
         }
 
     return ~crc64(~0, upper_string, string_length);
+    }
+
+Pack2_Namelist
+pack2_names_generate_namelist_from_string_list(String8* string_list, uint string_count)
+    {
+    uint capacity = FL_NAMELIST_BUFFER_SIZE / sizeof(Pack2_Namelist);
+    if (string_count > capacity)
+        {
+        printf("[!] String count exceeds namelist capacity. Increase namelist buffer or use less strings.\n");
+        Pack2_Namelist empty = {0};
+        return empty;
+        }
+
+    Pack2_Namelist namelist = {.count = 0,
+                               .capacity = capacity,
+                               .entries = (Pack2_NamelistEntry*)malloc(FL_NAMELIST_BUFFER_SIZE)};
+
+    for (uint i = 0; i < string_count; ++i)
+        {
+        u64 hash = pack2_names_calculate_hash(string_list[i].content);
+        Pack2_NamelistEntry entry = {.hash = hash,
+                                     .name = string_list[i]};
+
+        namelist.entries[namelist.count] = entry;
+        ++namelist.count;
+        }
+
+    return namelist;
+    }
+
+Pack2_Namelist
+pack2_names_generate_namelist_from_file(char* file_path, u32 file_buffer_size)
+    {
+    u8* buffer = malloc(file_buffer_size);
+    if (!os_read_entire_file(file_path, buffer, file_buffer_size))
+        {
+        free(buffer);
+        Pack2_Namelist empty = {0};
+        return empty;
+        }
+
+    Pack2_Namelist empty = {0};
+    return empty; // TODO(rhett): 
     }
 
 //// Main functions
@@ -121,7 +166,7 @@ Asset2
 pack2_asset2_get_by_name(char* name, Pack2 pack)
     {
     // TODO(rhett): Check if name hash is already cached
-    u64 hash = pack2_crc64_uppercase(name);
+    u64 hash = pack2_names_calculate_hash(name);
     return pack2_asset2_get_by_hash(hash, pack);
     }
 

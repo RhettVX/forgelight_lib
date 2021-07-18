@@ -36,8 +36,24 @@ strings_cstring_to_string8(char* cstring);
 //----------------------------------------------------------------
 // Pack2
 //----------------------------------------------------------------
-#define FL_PACK2_BUFFER_SIZE  MB(500)
-#define FL_ASSET2_BUFFER_SIZE MB(100)
+#define FL_PACK2_BUFFER_SIZE    MB(500)
+#define FL_ASSET2_BUFFER_SIZE   MB(100)
+#define FL_NAMELIST_BUFFER_SIZE MB(50)
+
+typedef struct Pack2_NamelistEntry Pack2_NamelistEntry;
+struct Pack2_NamelistEntry
+    {
+    u64     hash;
+    String8 name;
+    };
+
+typedef struct Pack2_Namelist Pack2_Namelist;
+struct Pack2_Namelist
+    {
+    uint                 count;
+    uint                 capacity;
+    Pack2_NamelistEntry* entries;
+    };
 
 typedef struct Asset2 Asset2;
 struct Asset2
@@ -60,7 +76,13 @@ struct Pack2
 
 //// Helper functions
 extern u64
-pack2_crc64_uppercase(char* to_hash);
+pack2_names_calculate_hash(char* to_hash);
+
+extern Pack2_Namelist
+pack2_names_generate_namelist_from_string_list(String8* string_list, uint string_count);
+
+extern Pack2_Namelist
+pack2_names_generate_namelist_from_file(char* file_path, u32 file_buffer_size);
 
 //// Main functions
 extern Pack2
@@ -78,6 +100,11 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u
 
 extern void
 pack2_export_assets_as_files(char* pack_path, char* output_folder);
+
+#ifdef FL_DEBUG
+extern void
+debug_allocation_check_for_unfreed_memory();
+#endif // FL_DEBUG
 
 
 #endif // FORGELIGHT_LIB_H

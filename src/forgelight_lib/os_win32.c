@@ -12,7 +12,7 @@
     win32_memory_alloc(u32 size, uint line, char* file)
         {
         void* ptr = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
-        printf("[*] win32_memory_alloc, address=%p, size=%u, line=%u, file=%s\n", ptr, size, line, file);
+        printf("[*] win32_memory_alloc, address=%p, size=%u; %s(%u)\n", ptr, size, file, line);
         debug_allocation_register(ptr, line, file);
         return ptr;
         }
@@ -24,11 +24,11 @@
         debug_allocation_mark_as_freed(pointer, line, file);
 
         b32 result = HeapFree(GetProcessHeap(), 0, pointer);
-        printf("[*] win32_memory_free, address=%p, result=%d line=%u, file=%s\n", pointer, result, line, file);
+        printf("[*] win32_memory_free, address=%p, result=%d; %s(%u)\n", pointer, result, file, line);
         if (!result)
             {
             // NOTE(rhett): We should crash before even hitting this point.
-            printf("[X] Unable to free pointer! address=%p, line=%u, file=%s\n", pointer, line, file);
+            printf("[X] Unable to free pointer! address=%p; %s(%u)\n", pointer, file, line);
             abort();
             }
 
