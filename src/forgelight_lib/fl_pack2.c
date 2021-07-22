@@ -15,10 +15,10 @@ pack2_names_calculate_hash(char* to_hash)
     {
     u32 string_length = strings_cstring_length(to_hash);
 
-    char upper_string[256] = {0};
-    if (string_length > 256)
+    char upper_string[FL_NAMELIST_MAX_NAME_LENGTH] = {0};
+    if (string_length > FL_NAMELIST_MAX_NAME_LENGTH)
         {
-        printf("Whoops, guess filenames can be bigger than 256 characters...");
+        printf("Whoops, guess filenames can be bigger than what we have in FL_NAMELIST_MAX_NAME_LENGTH...");
         return 0;
         }
 
@@ -63,15 +63,38 @@ pack2_names_generate_namelist_from_string_list(String8* string_list, uint string
     return namelist;
     }
 
+// TODO(rhett): Should we keep the namelist file in memory? 
 Pack2_Namelist
 pack2_names_generate_namelist_from_file(char* file_path, u32 file_buffer_size)
     {
     u8* buffer = malloc(file_buffer_size);
-    if (!os_read_entire_file(file_path, buffer, file_buffer_size))
+    if (!os_load_entire_file(file_path, buffer, file_buffer_size))
         {
         free(buffer);
         Pack2_Namelist empty = {0};
         return empty;
+        }
+
+    uint tmp_word_count = 0;
+    char accumulator[FL_NAMELIST_MAX_NAME_LENGTH] = {0};
+    uint char_count = 0;
+    for (u32 i = 0; i < file_buffer_size; ++i)
+        {
+        if (buffer[i] == '\r' && buffer[++i] == '\n')
+            {
+            // NOTE(rhett): Null-terminate the string in the accumulator.
+            accumulator[char_count] = 0; 
+            printf("%s\n", accumulator);
+            char_count = 0;
+            ++tmp_word_count;
+            if (tmp_word_count > 5)
+                {
+                break;
+                }
+            continue;
+            }
+        accumulator[char_count] = buffer[i];
+        ++char_count;
         }
 
     Pack2_Namelist empty = {0};
@@ -92,7 +115,7 @@ pack2_load_from_file(char* pack_path, u8* pack2_buffer, u32 pack2_max_size)
         return result;
         }
     
-    if (!os_read_entire_file(result.pack_path.content, pack2_buffer, pack2_max_size))
+    if (!os_load_entire_file(result.pack_path.content, pack2_buffer, pack2_max_size))
         {
         return result;
         }
@@ -242,9 +265,9 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
             }
 
         // TODO(rhett): don't hardcode the path size
-        char output_path[256];
+        char output_path[OS_MAX_PATH_LENGTH];
         sprintf_s(output_path,
-                256,
+                OS_MAX_PATH_LENGTH,
                 "%s\\%016llx.bin",
                 output_folder,
                 ptr_asset->name_hash);

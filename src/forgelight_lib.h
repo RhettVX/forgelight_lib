@@ -19,13 +19,6 @@
 //----------------------------------------------------------------
 // Strings
 //----------------------------------------------------------------
-typedef struct String8 String8;
-struct String8
-    {
-    u32 length;
-    u8* content;
-    };
-
 extern u32
 strings_cstring_length(char* cstring);
 
@@ -36,9 +29,10 @@ strings_cstring_to_string8(char* cstring);
 //----------------------------------------------------------------
 // Pack2
 //----------------------------------------------------------------
-#define FL_PACK2_BUFFER_SIZE    MB(500)
-#define FL_ASSET2_BUFFER_SIZE   MB(100)
-#define FL_NAMELIST_BUFFER_SIZE MB(50)
+#define FL_PACK2_BUFFER_SIZE        MB(500)
+#define FL_ASSET2_BUFFER_SIZE       MB(100)
+#define FL_NAMELIST_BUFFER_SIZE     MB(50)
+#define FL_NAMELIST_MAX_NAME_LENGTH 256
 
 typedef struct Pack2_NamelistEntry Pack2_NamelistEntry;
 struct Pack2_NamelistEntry
@@ -102,8 +96,8 @@ extern void
 pack2_export_assets_as_files(char* pack_path, char* output_folder);
 
 #ifdef FL_DEBUG
-extern void
-debug_allocation_check_for_unfreed_memory();
+    extern void
+    debug_allocation_check_for_unfreed_memory();
 #endif // FL_DEBUG
 
 

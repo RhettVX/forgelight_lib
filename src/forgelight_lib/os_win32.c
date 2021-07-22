@@ -55,7 +55,7 @@
 // TODO(rhett): This only reads a 4gb file, but the pack2 format can handle larger.
 // TODO(rhett): Maybe use a result variable.
 b32
-win32_read_entire_file(char* file_path, u8* buffer, u32 max_size)
+win32_load_entire_file(char* file_path, u8* buffer, u32 max_size)
     {
     HANDLE file_handle = CreateFile(file_path,
                                     GENERIC_READ,

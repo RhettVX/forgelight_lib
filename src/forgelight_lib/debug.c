@@ -5,7 +5,7 @@
 
 
 global AllocationTable debug_allocation_table_global = {.count = 0,
-                                                        .capacity = MAX_ALLOCATIONS,
+                                                        .capacity = FL_DEBUG_MAX_ALLOCATIONS,
                                                         .entries = {0}};
 
 

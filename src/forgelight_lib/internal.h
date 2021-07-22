@@ -33,7 +33,7 @@ endian_get_u32_be(u8* data);
 //----------------------------------------------------------------
 #ifdef FL_DEBUG
 
-    #define MAX_ALLOCATIONS 256
+    #define FL_DEBUG_MAX_ALLOCATIONS 256
 
     typedef struct AllocationEntry AllocationEntry;
     struct AllocationEntry
@@ -49,7 +49,7 @@ endian_get_u32_be(u8* data);
         {
         uint            count;
         uint            capacity;
-        AllocationEntry entries[MAX_ALLOCATIONS];
+        AllocationEntry entries[FL_DEBUG_MAX_ALLOCATIONS];
         };
 
     // extern AllocationTable debug_allocation_table_global;

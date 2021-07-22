@@ -53,5 +53,12 @@ typedef i64 b64;
 typedef  float f32;
 typedef double f64;
 
+typedef struct String8 String8;
+struct String8
+    {
+    u32 length;
+    u8* content;
+    };
+
 
 #endif // BASE_H

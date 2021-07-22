@@ -2,6 +2,9 @@
 #define OS_H
 
 
+#define OS_MAX_PATH_LENGTH 256
+
+
 //// Memory functions
 extern void* 
 os_memory_alloc(u32 size);
@@ -11,7 +14,7 @@ os_memory_free(void* pointer);
 
 //// File functions
 extern b32
-os_read_entire_file(char* file_path, u8* buffer, u32 max_size);
+os_load_entire_file(char* file_path, u8* buffer, u32 max_size);
 
 extern b32
 os_write_buffer_to_file(char* file_path, u8* buffer, u32 buffer_length);
@@ -36,7 +39,7 @@ os_create_folder(char* folder_path);
     #endif // FL_DEBUG
 
     extern b32
-    win32_read_entire_file(char* file_path, u8* buffer, u32 max_size);
+    win32_load_entire_file(char* file_path, u8* buffer, u32 max_size);
 
     extern b32
     win32_write_buffer_to_file(char* file_path, u8* buffer, u32 buffer_length);
@@ -54,7 +57,7 @@ os_create_folder(char* folder_path);
     #define os_memory_free(ptr) win32_memory_free(ptr)
 #endif // FL_DEBUG
 
-#define os_read_entire_file(s,ptr,sz)     win32_read_entire_file(s,ptr,sz)
+#define os_load_entire_file(s,ptr,sz)     win32_load_entire_file(s,ptr,sz)
 #define os_write_buffer_to_file(s,ptr,sz) win32_write_buffer_to_file(s,ptr,sz)
 #define os_create_folder(s)               win32_create_folder(s)
 
