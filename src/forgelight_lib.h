@@ -11,7 +11,7 @@
 
 #define malloc(sz)           os_memory_alloc(sz)
 #define free(ptr)            os_memory_free(ptr)
-#define memcpy(src,dst,sz)   memcmp(dst,src,sz)
+#define memcpy(src,dst,sz)   memcpy(dst,src,sz)
 #define memcmp(ptr1,ptr2,sz) memcmp(ptr1,ptr2,sz)
 #define memset(ptr,val,sz)   memset(ptr,val,sz)
 
@@ -29,10 +29,13 @@ strings_cstring_to_string8(char* cstring);
 //----------------------------------------------------------------
 // Pack2
 //----------------------------------------------------------------
-#define FL_PACK2_BUFFER_SIZE        MB(500)
-#define FL_ASSET2_BUFFER_SIZE       MB(100)
-#define FL_NAMELIST_BUFFER_SIZE     MB(50)
-#define FL_NAMELIST_MAX_NAME_LENGTH 256
+#define FL_PACK2_BUFFER_SIZE  MB(500)
+#define FL_ASSET2_BUFFER_SIZE MB(100)
+
+#define FL_NAMELIST_FILE_BUFFER_SIZE MB(50)
+// TODO(rhett): If I reduce the amount of garbage strings that get scraped, we can save a ton of space
+#define FL_NAMELIST_MAX_NAME_AMOUNT  2000000 // * sizeof(Pack2_NamelistEntry) 
+#define FL_NAMELIST_MAX_NAME_LENGTH  256
 
 typedef struct Pack2_NamelistEntry Pack2_NamelistEntry;
 struct Pack2_NamelistEntry
@@ -47,6 +50,8 @@ struct Pack2_Namelist
     uint                 count;
     uint                 capacity;
     Pack2_NamelistEntry* entries;
+    // NOTE(rhett): Keeping a pointer to the loaded file in memory.
+    u8*                  raw_data_ptr;
     };
 
 typedef struct Asset2 Asset2;
@@ -70,10 +75,11 @@ struct Pack2
 
 //// Helper functions
 extern u64
-pack2_names_calculate_hash(char* to_hash);
+pack2_names_calculate_hash(String8 to_hash);
 
-extern Pack2_Namelist
-pack2_names_generate_namelist_from_string_list(String8* string_list, uint string_count);
+// TODO(rhett): Redo this
+// extern Pack2_Namelist
+// pack2_names_generate_namelist_from_string_list(String8* string_list, uint string_count);
 
 extern Pack2_Namelist
 pack2_names_generate_namelist_from_file(char* file_path, u32 file_buffer_size);

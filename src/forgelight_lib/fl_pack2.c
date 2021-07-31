@@ -11,20 +11,20 @@
 // TODO(rhett): Clean this up
 // NOTE(rhett): Calculates a crc64 hash of an asset's filename as used by pack2s
 u64
-pack2_names_calculate_hash(char* to_hash)
+pack2_names_calculate_hash(String8 to_hash)
     {
-    u32 string_length = strings_cstring_length(to_hash);
+    // u32 string_length = strings_cstring_length(to_hash);
 
     char upper_string[FL_NAMELIST_MAX_NAME_LENGTH] = {0};
-    if (string_length > FL_NAMELIST_MAX_NAME_LENGTH)
+    if (to_hash.length > FL_NAMELIST_MAX_NAME_LENGTH)
         {
         printf("Whoops, guess filenames can be bigger than what we have in FL_NAMELIST_MAX_NAME_LENGTH...");
         return 0;
         }
 
-    for (u32 i = 0; i < string_length; ++i)
+    for (u32 i = 0; i < to_hash.length; ++i)
         {
-        char c = *(to_hash + i);
+        char c = *(to_hash.content + i);
         if (c >= 'a' && c <= 'z')
             {
             c ^= 0b00100000;
@@ -32,73 +32,84 @@ pack2_names_calculate_hash(char* to_hash)
         upper_string[i] = c;
         }
 
-    return ~crc64(~0, upper_string, string_length);
+    return ~crc64(~0, upper_string, to_hash.length);
     }
 
-Pack2_Namelist
-pack2_names_generate_namelist_from_string_list(String8* string_list, uint string_count)
-    {
-    uint capacity = FL_NAMELIST_BUFFER_SIZE / sizeof(Pack2_Namelist);
-    if (string_count > capacity)
-        {
-        printf("[!] String count exceeds namelist capacity. Increase namelist buffer or use less strings.\n");
-        Pack2_Namelist empty = {0};
-        return empty;
-        }
+// TODO(rhett): Redo this
+// Pack2_Namelist
+// pack2_names_generate_namelist_from_string_list(String8* string_list, uint string_count)
+//     {
+//     uint capacity = FL_NAMELIST_BUFFER_SIZE / sizeof(Pack2_Namelist);
+//     if (string_count > capacity)
+//         {
+//         printf("[!] String count exceeds namelist capacity. Increase namelist buffer or use less strings.\n");
+//         Pack2_Namelist empty = {0};
+//         return empty;
+//         }
 
-    Pack2_Namelist namelist = {.count = 0,
-                               .capacity = capacity,
-                               .entries = (Pack2_NamelistEntry*)malloc(FL_NAMELIST_BUFFER_SIZE)};
+//     Pack2_Namelist namelist = {.count = 0,
+//                                .capacity = capacity,
+//                                .entries = malloc(FL_NAMELIST_BUFFER_SIZE)};
 
-    for (uint i = 0; i < string_count; ++i)
-        {
-        u64 hash = pack2_names_calculate_hash(string_list[i].content);
-        Pack2_NamelistEntry entry = {.hash = hash,
-                                     .name = string_list[i]};
+//     for (uint i = 0; i < string_count; ++i)
+//         {
+//         u64 hash = pack2_names_calculate_hash(string_list[i].content);
+//         Pack2_NamelistEntry entry = {.hash = hash,
+//                                      .name = string_list[i]};
 
-        namelist.entries[namelist.count] = entry;
-        ++namelist.count;
-        }
+//         namelist.entries[namelist.count] = entry;
+//         ++namelist.count;
+//         }
 
-    return namelist;
-    }
+//     return namelist;
+//     }
 
-// TODO(rhett): Should we keep the namelist file in memory? 
+// NOTE(rhett): Assume the file contains a list of names separated by newlines
 Pack2_Namelist
 pack2_names_generate_namelist_from_file(char* file_path, u32 file_buffer_size)
     {
-    u8* buffer = malloc(file_buffer_size);
-    if (!os_load_entire_file(file_path, buffer, file_buffer_size))
+    Pack2_Namelist result = {.count = 0,
+                             .capacity = FL_NAMELIST_MAX_NAME_AMOUNT,
+                             .entries = {0},
+                             .raw_data_ptr = 0};
+
+    // NOTE(rhett): Load namelist file to memory
+    result.raw_data_ptr = malloc(file_buffer_size);
+    if (!os_load_entire_file(file_path, result.raw_data_ptr, file_buffer_size))
         {
-        free(buffer);
+        printf("[!] Unable to load file: \"%s\"\n", file_path);
+        free(result.raw_data_ptr);
         Pack2_Namelist empty = {0};
         return empty;
         }
 
-    uint tmp_word_count = 0;
-    char accumulator[FL_NAMELIST_MAX_NAME_LENGTH] = {0};
+    // NOTE(rhett): Allocate memory for the Pack2_Namelist
+    result.entries = malloc(result.capacity * sizeof(Pack2_NamelistEntry));
+
+    // NOTE(rhett): Feed pointers of names in memory to the namelist
     uint char_count = 0;
     for (u32 i = 0; i < file_buffer_size; ++i)
         {
-        if (buffer[i] == '\r' && buffer[++i] == '\n')
+        // TODO(rhett): Just handling \r\n for now
+        if (result.raw_data_ptr[i] == '\r' && result.raw_data_ptr[++i] == '\n')
             {
-            // NOTE(rhett): Null-terminate the string in the accumulator.
-            accumulator[char_count] = 0; 
-            printf("%s\n", accumulator);
+            String8 string = {.length = char_count,
+                              .content = (&result.raw_data_ptr[i-1] - char_count)};
+
+            Pack2_NamelistEntry entry = {.hash = pack2_names_calculate_hash(string), 
+                                         .name = string};
+
+            result.entries[result.count] = entry;
+            ++result.count;
             char_count = 0;
-            ++tmp_word_count;
-            if (tmp_word_count > 5)
-                {
-                break;
-                }
+
             continue;
             }
-        accumulator[char_count] = buffer[i];
+
         ++char_count;
         }
 
-    Pack2_Namelist empty = {0};
-    return empty; // TODO(rhett): 
+    return result;
     }
 
 //// Main functions
@@ -144,7 +155,7 @@ pack2_load_from_file(char* pack_path, u8* pack2_buffer, u32 pack2_max_size)
 
     // NOTE(rhett): Load asset info
     // TODO(rhett): We should probably move allocation out of here
-    result.asset2s = (Asset2* )malloc(result.asset_count*  sizeof(Asset2));
+    result.asset2s = malloc(result.asset_count * sizeof(Asset2));
 
     Asset2* ptr_asset2s;
     for (u32 i = 0; i < result.asset_count; ++i)
@@ -189,7 +200,7 @@ Asset2
 pack2_asset2_get_by_name(char* name, Pack2 pack)
     {
     // TODO(rhett): Check if name hash is already cached
-    u64 hash = pack2_names_calculate_hash(name);
+    u64 hash = pack2_names_calculate_hash(strings_cstring_to_string8(name));
     return pack2_asset2_get_by_hash(hash, pack);
     }
 
@@ -264,7 +275,6 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
             continue;
             }
 
-        // TODO(rhett): don't hardcode the path size
         char output_path[OS_MAX_PATH_LENGTH];
         sprintf_s(output_path,
                 OS_MAX_PATH_LENGTH,
@@ -272,7 +282,6 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
                 output_folder,
                 ptr_asset->name_hash);
         os_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
-        break; // TODO(rhett): 
         }
         
     free(buffer_begin);
