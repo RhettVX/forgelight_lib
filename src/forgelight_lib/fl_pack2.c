@@ -247,8 +247,9 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u
 
 // TODO(rhett): maybe we'll take a namelist here
 // NOTE(rhett): This will allocate 600mb
+// TODO(rhett): this will allocate a bunch more, I need to clean this back up
 void
-pack2_export_assets_as_files(char* pack_path, char* output_folder)
+pack2_export_assets_as_files(char* pack_path, char* output_folder, char* namelist_path)
     {
     u8* buffer_begin = (u8*)malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
     u8* pack_buffer = buffer_begin;
@@ -257,6 +258,10 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
     Pack2 pack = pack2_load_from_file(pack_path,
                                       pack_buffer,
                                       FL_PACK2_BUFFER_SIZE);
+
+    Pack2_Namelist namelist = pack2_names_generate_namelist_from_file(namelist_path,
+                                                                      FL_NAMELIST_FILE_BUFFER_SIZE);
+    pack2_consolidate_with_namelist(&pack, namelist);
 
     os_create_folder(output_folder);
     for (uint i = 0; i < pack.asset_count; ++i)
@@ -275,15 +280,62 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder)
             continue;
             }
 
+        // TODO(rhett): Clean this up
         char output_path[OS_MAX_PATH_LENGTH];
-        sprintf_s(output_path,
-                OS_MAX_PATH_LENGTH,
-                "%s\\%016llx.bin",
-                output_folder,
-                ptr_asset->name_hash);
+        if (pack.asset2_names[i].hash)
+            {
+            String8 name = pack.asset2_names[i].name;
+            char temp_buffer[FL_NAMELIST_MAX_NAME_LENGTH] = {0};
+            memcpy(name.content, temp_buffer, name.length);
+
+            sprintf_s(output_path,
+                      OS_MAX_PATH_LENGTH,
+                      "%s\\%s",
+                      output_folder,
+                      temp_buffer);
+            }
+        else
+            {
+            sprintf_s(output_path,
+                      OS_MAX_PATH_LENGTH,
+                      "%s\\%#018llx.bin",
+                      output_folder,
+                      ptr_asset->name_hash);
+            }
+
         os_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
         }
-        
+    
+    // TODO(rhett): I think I'm allocating way more than I should be
     free(buffer_begin);
     free(pack.asset2s);
+    free(pack.asset2_names);
+    free(namelist.entries);
+    free(namelist.raw_data_ptr);
     } 
+
+extern void
+pack2_consolidate_with_namelist(Pack2* pack, Pack2_Namelist namelist)
+    {
+    if (pack->asset2_names)
+        {
+        printf("\"%s\" has already been consolidated with a namelist.", pack->pack_path.content);
+        return;
+        }
+
+    pack->asset2_names = malloc(pack->asset_count * sizeof(Pack2_NamelistEntry));
+
+    // TODO(rhett): Optimize this. Skip already used names.
+    for (u32 i = 0; i < pack->asset_count; ++i)
+        {
+        for (u32 j = 0; j < namelist.count; ++j)
+            {
+            if (pack->asset2s[i].name_hash == namelist.entries[j].hash)
+                {
+                pack->asset2_names[i] = namelist.entries[j];
+                break;
+                }
+            }
+        }
+    }
+

@@ -67,10 +67,11 @@ struct Asset2
 typedef struct Pack2 Pack2;
 struct Pack2
     {
-    String8 pack_path;
-    u32     asset_count;
-    u64     pack_length;
-    Asset2* asset2s;
+    String8              pack_path;
+    u32                  asset_count;
+    u64                  pack_length;
+    Asset2*              asset2s;
+    Pack2_NamelistEntry* asset2_names;
     };
 
 //// Helper functions
@@ -99,7 +100,10 @@ extern Asset2
 pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u32 max_asset2_size);
 
 extern void
-pack2_export_assets_as_files(char* pack_path, char* output_folder);
+pack2_export_assets_as_files(char* pack_path, char* output_folder, char* namelist_path);
+
+extern void
+pack2_consolidate_with_namelist(Pack2* pack, Pack2_Namelist namelist);
 
 #ifdef FL_DEBUG
     extern void
