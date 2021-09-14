@@ -22,6 +22,10 @@ os_write_buffer_to_file(char* file_path, u8* buffer, u32 buffer_length);
 extern b32
 os_create_folder(char* folder_path);
 
+//// Other functions
+extern String8
+os_local_time_as_string8();
+
 //================================================================
 #ifdef FL_WIN32
     #ifdef FL_DEBUG
@@ -46,6 +50,9 @@ os_create_folder(char* folder_path);
 
     extern b32
     win32_create_folder(char* folder_path);
+
+    extern String8
+    win32_local_time_as_string8();
 #endif // FL_WIN32
 
 //================================================================
@@ -60,6 +67,7 @@ os_create_folder(char* folder_path);
 #define os_load_entire_file(s,ptr,sz)     win32_load_entire_file(s,ptr,sz)
 #define os_write_buffer_to_file(s,ptr,sz) win32_write_buffer_to_file(s,ptr,sz)
 #define os_create_folder(s)               win32_create_folder(s)
-
+#define os_local_time_as_string8()        win32_local_time_as_string8()  
+    
 
 #endif // OS_H

@@ -9,23 +9,6 @@
 #include "forgelight_lib/os.h"
 
 
-#define malloc(sz)           os_memory_alloc(sz)
-#define free(ptr)            os_memory_free(ptr)
-#define memcpy(src,dst,sz)   memcpy(dst,src,sz)
-#define memcmp(ptr1,ptr2,sz) memcmp(ptr1,ptr2,sz)
-#define memset(ptr,val,sz)   memset(ptr,val,sz)
-
-
-//----------------------------------------------------------------
-// Strings
-//----------------------------------------------------------------
-extern u32
-strings_cstring_length(char* cstring);
-
-extern String8
-strings_cstring_to_string8(char* cstring);
-
-
 //----------------------------------------------------------------
 // Pack2
 //----------------------------------------------------------------

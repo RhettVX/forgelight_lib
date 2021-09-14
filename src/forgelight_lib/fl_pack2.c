@@ -2,6 +2,7 @@
 
 #include "../forgelight_lib.h"
 #include "internal.h"
+#include "os.h"
 
 
 //----------------------------------------------------------------
@@ -138,7 +139,7 @@ pack2_load_from_file(char* pack_path, u8* pack2_buffer, u32 pack2_max_size)
     memcpy(pack2_buffer, magic, 3);
     pack2_buffer += 3;
 
-    u8 version =* pack2_buffer;
+    u8 version = *pack2_buffer;
     pack2_buffer += 1;
 
     result.asset_count = endian_get_u32_le(pack2_buffer);
@@ -176,7 +177,6 @@ pack2_load_from_file(char* pack_path, u8* pack2_buffer, u32 pack2_max_size)
 
         // NOTE(rhett): Skip checksum
         pack2_buffer += 4;
-        // printf("%#018llx\n", result.name_hashes[i]);
         }
     return result;
     }
@@ -212,16 +212,13 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u
         // NOTE(rhett): Asset is unzipped
         case 0x00:
         case 0x10:
-            printf("UNZIPPED\n");
-            // TODO(rhett): 
-            return asset;
+            // TODO(rhett): I am copying the data from the pack2_buffer to the asset2_buffer, but I don't believe that is necessary 
+            memcpy(pack2_buffer, asset2_buffer, asset.raw_data_length);
             break;
 
         // NOTE(rhett): Asset is zipped
         case 0x01:
         case 0x11:
-            // printf("ZIPPED\n");
-
             // NOTE(rhett): Skip A1B2C3D4
             pack2_buffer += 4;
 
@@ -239,20 +236,18 @@ pack2_asset2_load_to_buffer(Asset2 asset, u8* pack2_buffer, u8* asset2_buffer, u
                           &asset.unzipped_data_length,
                           pack2_buffer,
                           (mz_ulong)asset.raw_data_length);
-            break;
         }
 
     return asset;
     }
 
-// TODO(rhett): maybe we'll take a namelist here
 // NOTE(rhett): This will allocate 600mb
 // TODO(rhett): this will allocate a bunch more, I need to clean this back up
 void
 pack2_export_assets_as_files(char* pack_path, char* output_folder, char* namelist_path)
     {
-    u8* buffer_begin = (u8*)malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
-    u8* pack_buffer = buffer_begin;
+    u8* buffer_begin = malloc(FL_PACK2_BUFFER_SIZE + FL_ASSET2_BUFFER_SIZE);
+    u8* pack_buffer  = buffer_begin;
     u8* asset_buffer = buffer_begin + FL_PACK2_BUFFER_SIZE;
 
     Pack2 pack = pack2_load_from_file(pack_path,
@@ -273,12 +268,6 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder, char* namelis
                                                  pack_buffer,
                                                  asset_buffer,
                                                  FL_PACK2_BUFFER_SIZE);
-
-        if (ptr_asset->unzipped_data_length == 0)
-            {
-            printf("Skipping unzipped asset...\n");
-            continue;
-            }
 
         // TODO(rhett): Clean this up
         char output_path[OS_MAX_PATH_LENGTH];
@@ -303,7 +292,16 @@ pack2_export_assets_as_files(char* pack_path, char* output_folder, char* namelis
                       ptr_asset->name_hash);
             }
 
-        os_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
+        // TODO(rhett): maybe we should just set unzipped_data_length to raw asset size if uncompressed
+        // NOTE(rhett): If unzipped_data_length is 0, then we're most likely uncompressed
+        if (ptr_asset->unzipped_data_length)
+            {
+            os_write_buffer_to_file(output_path, asset_buffer, ptr_asset->unzipped_data_length);
+            }
+        else
+            {
+            os_write_buffer_to_file(output_path, asset_buffer, ptr_asset->raw_data_length);
+            }
         }
     
     // TODO(rhett): I think I'm allocating way more than I should be
