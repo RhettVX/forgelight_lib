@@ -1,7 +1,20 @@
-#include "../forgelight_lib.h"
+#include "forgelight_lib.h"
 
 
 //// Little endian
+u16
+endian_get_u16_le(u8* data)
+    {
+    u16 result = 0;
+    for (u32 i = 2; i > 0; --i)
+        {
+        result <<= 8;
+        result |= *(data + (i - 1));
+        }
+
+    return result;
+    }
+
 u32
 endian_get_u32_le(u8* data)
     {
@@ -24,6 +37,21 @@ endian_get_u64_le(u8* data)
         result <<= 8;
         result |= *(data + (i - 1));
         }
+
+    return result;
+    }
+
+f32
+endian_get_f32_le(u8* data)
+    {
+    u32 raw = 0;
+    for (u32 i = 4; i > 0; --i)
+        {
+        raw <<= 8;
+        raw |= *(data + (i - 1));
+        }
+
+    f32 result = *(f32*)&raw;
 
     return result;
     }

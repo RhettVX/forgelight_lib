@@ -1,6 +1,6 @@
 #ifdef FL_DEBUG
 
-#include "../forgelight_lib.h"
+#include "forgelight_lib.h"
 #include "internal.h"
 
 

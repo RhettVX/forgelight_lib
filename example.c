@@ -1,10 +1,43 @@
 #include "forgelight_lib.h"
 
 
+extern u32
+hash(char* k, u32 length, u32 initval);
+
+i32 one_at_a_time(char *key, u32 len)
+{
+  i32   hash, i;
+  for (hash=0, i=0; i<len; ++i)
+  {
+    hash += key[i];
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
+  hash += (hash << 3);
+  hash ^= (hash >> 11);
+  hash += (hash << 15);
+  return (hash & ~0);
+}
+
+
+
 int
 main(void)
     {
-    #if 1 // Let's try the real deal now
+    #if 0
+    char to_hash[] = "Designer";
+    puts(to_hash);
+    u32 name_hash = one_at_a_time(to_hash, sizeof(to_hash)-1);
+    EVAL_PRINT_U32(name_hash);
+    #endif
+    #if 0
+    char to_hash[] = "Global.Text.6011687";
+    EVAL_PRINT_U32(sizeof(to_hash));
+    u32 name_hash = hash(to_hash, sizeof(to_hash)-1, 0);
+    EVAL_PRINT_U32(name_hash);
+    #endif
+
+    #if 0 // Let's try the real deal now
 
     pack2_export_assets_as_files("C:\\A\\Games\\PlanetSide 2\\Resources\\Assets\\OutfitWars_x64_1.pack2",
                                  "unpacked_assets",
@@ -62,7 +95,7 @@ main(void)
     #endif
     
     #ifdef FL_DEBUG
-    debug_allocation_check_for_unfreed_memory();
+    // debug_allocation_check_for_unfreed_memory();
     #endif // FL_DEBUG
     
     return 0;

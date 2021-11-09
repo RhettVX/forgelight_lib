@@ -1,8 +1,7 @@
-#include "../external/miniz.h"
+#include "external/miniz.h"
 
-#include "../forgelight_lib.h"
+#include "forgelight_lib.h"
 #include "internal.h"
-#include "os.h"
 
 
 //----------------------------------------------------------------

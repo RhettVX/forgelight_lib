@@ -22,24 +22,6 @@ strings_cstring_to_string8(char* cstring);
 
 
 //----------------------------------------------------------------
-// Endian IO
-//----------------------------------------------------------------
-//// Little endian
-extern u32
-endian_get_u32_le(u8* data);
-
-extern u64
-endian_get_u64_le(u8* data);
-
-//// Big endian
-extern u16
-endian_get_u16_be(u8* data);
-
-extern u32
-endian_get_u32_be(u8* data);
-
-
-//----------------------------------------------------------------
 // Util
 //----------------------------------------------------------------
 extern void

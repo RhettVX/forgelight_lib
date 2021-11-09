@@ -1,4 +1,4 @@
-#include "../forgelight_lib.h"
+#include "forgelight_lib.h"
 
 
 //----------------------------------------------------------------
