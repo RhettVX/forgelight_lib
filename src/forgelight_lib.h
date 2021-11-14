@@ -65,6 +65,7 @@ typedef i16 b16;
 typedef i32 b32;
 typedef i64 b64;
 
+typedef    u16 f16;
 typedef  float f32;
 typedef double f64;
 
@@ -159,6 +160,9 @@ endian_get_u32_le(u8* data);
 
 extern u64
 endian_get_u64_le(u8* data);
+
+extern f32
+endian_get_f16_as_f32_le(u8* data);
 
 extern f32
 endian_get_f32_le(u8* data);
